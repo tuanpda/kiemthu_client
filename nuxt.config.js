@@ -58,15 +58,15 @@ export default {
   axios: {
     // Workaround to avoid enforcing hard-coded localhost:3000: https://github.com/nuxt-community/axios-module/issues/308
     // baseURL: "/",
-    // baseURL: companyConfig.apiBaseURL,
-    baseURL: "http://localhost:4209",
+    baseURL: companyConfig.apiBaseURL,
+    // baseURL: "http://localhost:4209",
     credentials: true,
   },
 
   server: {
     port: companyConfig.port_client,
-    // host: companyConfig.host,
-    host: "localhost",
+    host: companyConfig.host,
+    // host: "localhost",
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
