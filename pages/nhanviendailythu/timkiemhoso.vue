@@ -383,7 +383,7 @@
       <div class="">
         <div :class="{ 'is-active': isActive }" class="modal">
           <div class="modal-background"></div>
-          <div class="modal-content modal-card box">
+          <div class="modal-content modal-card-predata">
             <section class="modal-card-body">
               <div>
                 <span style="font-weight: 800; font-size: 15px; color: #3cb371"
@@ -449,7 +449,7 @@
       <div class="">
         <div :class="{ 'is-active': isActive_fix }" class="modal">
           <div class="modal-background"></div>
-          <div class="modal-content modal-card box">
+          <div class="modal-content modal-card-predata">
             <section class="modal-card-body">
               <div>
                 <span style="font-weight: 800; font-size: 15px; color: #3cb371"
@@ -1382,4 +1382,17 @@ export default {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+  /* Mặc định cho thiết bị di động */
+  .modal-card-predata {
+    max-height: 80vh; /* Chiều cao tối đa là 80% màn hình */
+    overflow-y: auto; /* Cho phép cuộn nếu nội dung quá dài */
+  }
+
+  /* Cho thiết bị máy tính */
+  @media (min-width: 1024px) {
+    .modal-card-predata {
+      max-height: 90vh; /* Tăng chiều cao tối đa cho máy tính */
+    }
+  }
 </style>

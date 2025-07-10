@@ -2037,7 +2037,6 @@ export default {
               // ở đây có thể là 1,3,6,12, VS
 
               // this.items[index].tungay = formatDate(tuNgay);
-              // console.log("🎯 Hạn thẻ từ (tungay):", this.items[index].tungay);
 
               const filename = dataHgd.tenFile;
               const parts = filename.split("_");
@@ -2578,7 +2577,7 @@ export default {
           const fileName = `${hs.sobienlai}_${encodeURIComponent(
             hs.hoten
           )}.pdf`;
-          const pdfUrl = `http://14.224.129.177:1970/bienlaidientu/${hs.urlNameInvoice}.pdf`;
+          const pdfUrl = `${company.clientURL}/bienlaidientu/${hs.urlNameInvoice}.pdf`;
           // const pdfUrl = `http://localhost:1970/bienlaidientu/${hs.urlNameInvoice}.pdf`;
           // console.log(pdfUrl);
 
