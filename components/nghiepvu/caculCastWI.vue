@@ -330,42 +330,18 @@
                 </div>
               </td> -->
               <!-- bệnh viện -->
-              <!-- <td style="text-align: center">
-                <input
-                  autoComplete="on"
-                  list="hopSuggestions"
-                  class="custom-input"
-                  @change="hopChange($event, index)"
-                  ref="hopInput"
-                  style="min-width: 200px; height: 30px"
-                  v-model="item.tenbenhvien"
-                />
-                <datalist id="hopSuggestions">
-                  <option
-                    v-for="(item, index) in item.info_benhvien"
-                    :key="index"
-                  >
-                    {{ item.mabenhvien }} - {{ item.tenbenhvien }}
-                  </option>
-                </datalist>
-              </td> -->
+              
 
               <td style="text-align: center">
-                <div class="select is-fullwidth is-small">
-                  <select
-                    v-model="item.mabenhvien"
-                    @change="hopChangeReset($event, index)"
-                    ref="hopInput"
-                  >
-                    <option
-                      v-for="(nt, idx) in item.info_benhvien"
-                      :key="idx"
-                      :value="nt.mabenhvien"
-                    >
-                      {{ nt.tenbenhvien }}
-                    </option>
-                  </select>
-                </div>
+                <v-select
+                  v-model="item.mabenhvien"
+                  :options="item.info_benhvien"
+                  label="tenbenhvien"
+                  :reduce="b => b.mabenhvien"
+                  placeholder="Chọn trạm y tế"
+                  @input="hopChangeReset($event, index)"
+                  :append-to-body="true"
+                />
               </td>
 
               <td>
@@ -3128,17 +3104,17 @@ export default {
     },
 
     // thông tin bệnh viện
-    async hopChange(e, index) {
-      const mabenhvien = e.target.value;
-      const text = e.target.options[e.target.selectedIndex].text;
+     async hopChangeReset(mabenhvien, index) {
+      const item = this.items[index];
 
-      // Tách ra
-      const parts = text.split(" - ");
-      const tenbenhvien = parts[1] ? parts[1].trim() : "";
+      // Tìm object bệnh viện trong danh sách
+      const selected = item.info_benhvien.find(
+        b => b.mabenhvien === mabenhvien
+      );
 
-      this.items[index].mabenhvien = mabenhvien;
-      this.items[index].tenbenhvien = tenbenhvien;
-      // console.log(this.items[index]);
+      // Gán mã và tên bệnh viện
+      item.mabenhvien = mabenhvien;
+      item.tenbenhvien = selected ? selected.tenbenhvien : "";
     },
 
     async hopChangeReset(e, index) {

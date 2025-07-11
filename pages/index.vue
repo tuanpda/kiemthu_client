@@ -67,7 +67,7 @@
               <template v-else-if="user.nvcongty == 1 && user.role != 2">
                 <span>Công ty TNHH An Sinh 159</span>
               </template>
-              <template v-else> <span>Công ty TNHH An Sinh 159</span></template>
+              <template v-else> <span>{{ congty }}</span></template>
             </p>
 
             <button class="button is-dark mt-4 is-fullwidth">
@@ -320,6 +320,7 @@
 </template>
 
 <script>
+import company from "@/config.company";
 import CharLoaiHinh from "~/components/CharLoaiHinh.vue";
 import CharLoaiHinhDaiLy from "~/components/CharLoaiHinhDaiLy.vue";
 import CharTongTienThuTheoThang from "~/components/CharTongTienThuTheoThang.vue";
@@ -347,6 +348,7 @@ export default {
       madaily: "",
       cccd: "",
       madailyChart: 0,
+      congty: "",
     };
   },
 
@@ -369,6 +371,7 @@ export default {
     // console.log(this.$store.state.user);
 
     const user = this.user;
+    this.congty = `${company.companyName}`
     if (user) {
       this.role = user.role;
       // console.log(this.role);
