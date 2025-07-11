@@ -121,169 +121,170 @@ export default {
         views: [{ state: "frozen", xSplit: 3, ySplit: 3 }],
       });
 
-      // 1. TẠO CÁC SHEET PHỤ LỤC 1 BÊN
-      // Tạo worksheet DM Quốc tịch
-      // console.log(countries);
-      const worksheetDmQt = workbook.addWorksheet("DM Quốc tịch");
-      worksheetDmQt.columns = [
-        { header: "Mã quốc gia", key: "code", width: 15 }, // Cột 1
-        { header: "Tên Quốc gia/ Vùng lãnh thổ", key: "name", width: 30 }, // Cột 2 với chiều rộng 30
-      ];
-      // Tô màu cho tiêu đề
-      const headerRow = worksheetDmQt.getRow(1); // Lấy hàng tiêu đề
-      headerRow.eachCell((cell) => {
-        cell.fill = {
-          type: "pattern",
-          pattern: "solid",
-          fgColor: { argb: "FFADD8E6" }, // Màu xanh nước biển nhạt
-        };
-      });
-      // Căn giữa tiêu đề
-      headerRow.eachCell((cell) => {
-        cell.alignment = {
-          horizontal: "center", // Căn giữa theo chiều ngang
-          vertical: "middle", // Căn giữa theo chiều dọc (tùy chọn)
-        };
-      });
-      // Tạo các hàng từ dữ liệu JSON
-      countries.forEach((country) => {
-        const row = worksheetDmQt.addRow([country.code, country.name]); // Thêm từng hàng vào Excel
-        // Chỉ căn giữa cột đầu tiên
-        row.getCell(1).alignment = {
-          horizontal: "center", // Căn giữa dữ liệu theo chiều ngang
-          vertical: "middle", // Căn giữa theo chiều dọc (tùy chọn)
-        };
-      });
-      worksheetDmQt.autoFilter = {
-        from: "A1",
-        to: "B1",
-      };
+      // // 1. TẠO CÁC SHEET PHỤ LỤC 1 BÊN
+      // // Tạo worksheet DM Quốc tịch
+      // // console.log(countries);
+      // const worksheetDmQt = workbook.addWorksheet("DM Quốc tịch");
+      // worksheetDmQt.columns = [
+      //   { header: "Mã quốc gia", key: "code", width: 15 }, // Cột 1
+      //   { header: "Tên Quốc gia/ Vùng lãnh thổ", key: "name", width: 30 }, // Cột 2 với chiều rộng 30
+      // ];
+      // // Tô màu cho tiêu đề
+      // const headerRow = worksheetDmQt.getRow(1); // Lấy hàng tiêu đề
+      // headerRow.eachCell((cell) => {
+      //   cell.fill = {
+      //     type: "pattern",
+      //     pattern: "solid",
+      //     fgColor: { argb: "FFADD8E6" }, // Màu xanh nước biển nhạt
+      //   };
+      // });
+      // // Căn giữa tiêu đề
+      // headerRow.eachCell((cell) => {
+      //   cell.alignment = {
+      //     horizontal: "center", // Căn giữa theo chiều ngang
+      //     vertical: "middle", // Căn giữa theo chiều dọc (tùy chọn)
+      //   };
+      // });
+      // // Tạo các hàng từ dữ liệu JSON
+      // countries.forEach((country) => {
+      //   const row = worksheetDmQt.addRow([country.code, country.name]); // Thêm từng hàng vào Excel
+      //   // Chỉ căn giữa cột đầu tiên
+      //   row.getCell(1).alignment = {
+      //     horizontal: "center", // Căn giữa dữ liệu theo chiều ngang
+      //     vertical: "middle", // Căn giữa theo chiều dọc (tùy chọn)
+      //   };
+      // });
+      // worksheetDmQt.autoFilter = {
+      //   from: "A1",
+      //   to: "B1",
+      // };
 
-      // Tạo worksheet DM dân tộc
-      // console.log(dantoc);
-      const worksheetDmDt = workbook.addWorksheet("Dân tộc");
-      worksheetDmDt.columns = [
-        { header: "Mã dân tộc", key: "id", width: 15 }, // Cột 1
-        { header: "Tên dân tộc", key: "name", width: 30 }, // Cột 2 với chiều rộng 30
-      ];
-      // Tô màu cho tiêu đề
-      const headerRowdt = worksheetDmDt.getRow(1); // Lấy hàng tiêu đề
-      headerRowdt.eachCell((cell) => {
-        cell.fill = {
-          type: "pattern",
-          pattern: "solid",
-          fgColor: { argb: "FFADD8E6" }, // Màu xanh nước biển nhạt
-        };
-      });
-      // Căn giữa tiêu đề
-      headerRowdt.eachCell((cell) => {
-        cell.alignment = {
-          horizontal: "center", // Căn giữa theo chiều ngang
-          vertical: "middle", // Căn giữa theo chiều dọc (tùy chọn)
-        };
-      });
-      // Tạo các hàng từ dữ liệu JSON
-      dantoc.forEach((dt) => {
-        const row = worksheetDmDt.addRow([dt.id, dt.name]); // Thêm từng hàng vào Excel
-        // Chỉ căn giữa cột đầu tiên
-        row.getCell(1).alignment = {
-          horizontal: "center", // Căn giữa dữ liệu theo chiều ngang
-          vertical: "middle", // Căn giữa theo chiều dọc (tùy chọn)
-        };
-      });
-      worksheetDmDt.autoFilter = {
-        from: "A1",
-        to: "B1",
-      };
+      // // Tạo worksheet DM dân tộc
+      // // console.log(dantoc);
+      // const worksheetDmDt = workbook.addWorksheet("Dân tộc");
+      // worksheetDmDt.columns = [
+      //   { header: "Mã dân tộc", key: "id", width: 15 }, // Cột 1
+      //   { header: "Tên dân tộc", key: "name", width: 30 }, // Cột 2 với chiều rộng 30
+      // ];
+      // // Tô màu cho tiêu đề
+      // const headerRowdt = worksheetDmDt.getRow(1); // Lấy hàng tiêu đề
+      // headerRowdt.eachCell((cell) => {
+      //   cell.fill = {
+      //     type: "pattern",
+      //     pattern: "solid",
+      //     fgColor: { argb: "FFADD8E6" }, // Màu xanh nước biển nhạt
+      //   };
+      // });
+      // // Căn giữa tiêu đề
+      // headerRowdt.eachCell((cell) => {
+      //   cell.alignment = {
+      //     horizontal: "center", // Căn giữa theo chiều ngang
+      //     vertical: "middle", // Căn giữa theo chiều dọc (tùy chọn)
+      //   };
+      // });
+      // // Tạo các hàng từ dữ liệu JSON
+      // dantoc.forEach((dt) => {
+      //   const row = worksheetDmDt.addRow([dt.id, dt.name]); // Thêm từng hàng vào Excel
+      //   // Chỉ căn giữa cột đầu tiên
+      //   row.getCell(1).alignment = {
+      //     horizontal: "center", // Căn giữa dữ liệu theo chiều ngang
+      //     vertical: "middle", // Căn giữa theo chiều dọc (tùy chọn)
+      //   };
+      // });
+      // worksheetDmDt.autoFilter = {
+      //   from: "A1",
+      //   to: "B1",
+      // };
 
-      // Tạo worksheet DM mối quan hệ
-      const worksheetDmMqh = workbook.addWorksheet("Mối quan hệ");
-      worksheetDmMqh.columns = [
-        { header: "Mã mối quan hệ", key: "code", width: 20 }, // Cột 1
-        { header: "Mối quan hệ", key: "name", width: 30 }, // Cột 2 với chiều rộng 30
-      ];
-      // Tô màu cho tiêu đề
-      const headerRowmqh = worksheetDmMqh.getRow(1); // Lấy hàng tiêu đề
-      headerRowmqh.eachCell((cell) => {
-        cell.fill = {
-          type: "pattern",
-          pattern: "solid",
-          fgColor: { argb: "FFADD8E6" }, // Màu xanh nước biển nhạt
-        };
-      });
-      // Căn giữa tiêu đề
-      headerRowmqh.eachCell((cell) => {
-        cell.alignment = {
-          horizontal: "center", // Căn giữa theo chiều ngang
-          vertical: "middle", // Căn giữa theo chiều dọc (tùy chọn)
-        };
-      });
-      // Tạo các hàng từ dữ liệu JSON
-      reles.forEach((dt) => {
-        const row = worksheetDmMqh.addRow([dt.code, dt.name]); // Thêm từng hàng vào Excel
-        // Chỉ căn giữa cột đầu tiên
-        row.getCell(1).alignment = {
-          horizontal: "center", // Căn giữa dữ liệu theo chiều ngang
-          vertical: "middle", // Căn giữa theo chiều dọc (tùy chọn)
-        };
-      });
-      worksheetDmMqh.autoFilter = {
-        from: "A1",
-        to: "B1",
-      };
+      // // Tạo worksheet DM mối quan hệ
+      // const worksheetDmMqh = workbook.addWorksheet("Mối quan hệ");
+      // worksheetDmMqh.columns = [
+      //   { header: "Mã mối quan hệ", key: "code", width: 20 }, // Cột 1
+      //   { header: "Mối quan hệ", key: "name", width: 30 }, // Cột 2 với chiều rộng 30
+      // ];
+      // // Tô màu cho tiêu đề
+      // const headerRowmqh = worksheetDmMqh.getRow(1); // Lấy hàng tiêu đề
+      // headerRowmqh.eachCell((cell) => {
+      //   cell.fill = {
+      //     type: "pattern",
+      //     pattern: "solid",
+      //     fgColor: { argb: "FFADD8E6" }, // Màu xanh nước biển nhạt
+      //   };
+      // });
+      // // Căn giữa tiêu đề
+      // headerRowmqh.eachCell((cell) => {
+      //   cell.alignment = {
+      //     horizontal: "center", // Căn giữa theo chiều ngang
+      //     vertical: "middle", // Căn giữa theo chiều dọc (tùy chọn)
+      //   };
+      // });
+      // // Tạo các hàng từ dữ liệu JSON
+      // reles.forEach((dt) => {
+      //   const row = worksheetDmMqh.addRow([dt.code, dt.name]); // Thêm từng hàng vào Excel
+      //   // Chỉ căn giữa cột đầu tiên
+      //   row.getCell(1).alignment = {
+      //     horizontal: "center", // Căn giữa dữ liệu theo chiều ngang
+      //     vertical: "middle", // Căn giữa theo chiều dọc (tùy chọn)
+      //   };
+      // });
+      // worksheetDmMqh.autoFilter = {
+      //   from: "A1",
+      //   to: "B1",
+      // };
 
-      // Tạo worksheet DM mức hưởng bhyt
-      const worksheetDmMhbhyt = workbook.addWorksheet("Mức hưởng BHYT");
-      worksheetDmMhbhyt.columns = [
-        { header: "Mã", key: "code", width: 15 }, // Cột 1
-        { header: "Diễn giải", key: "name", width: 100 }, // Cột 2 với chiều rộng 30
-      ];
-      // Tô màu cho tiêu đề
-      const headerRowMhbhyt = worksheetDmMhbhyt.getRow(1); // Lấy hàng tiêu đề
-      headerRowMhbhyt.eachCell((cell) => {
-        cell.fill = {
-          type: "pattern",
-          pattern: "solid",
-          fgColor: { argb: "FFADD8E6" }, // Màu xanh nước biển nhạt
-        };
-      });
-      // Căn giữa tiêu đề
-      headerRowMhbhyt.eachCell((cell) => {
-        cell.alignment = {
-          horizontal: "center", // Căn giữa theo chiều ngang
-          vertical: "middle", // Căn giữa theo chiều dọc (tùy chọn)
-        };
-      });
-      // Tạo các hàng từ dữ liệu JSON
-      mhbhyt.forEach((dt) => {
-        const row = worksheetDmMhbhyt.addRow([dt.code, dt.name]); // Thêm từng hàng vào Excel
-        // Chỉ căn giữa cột đầu tiên
-        row.getCell(1).alignment = {
-          horizontal: "center", // Căn giữa dữ liệu theo chiều ngang
-          vertical: "middle", // Căn giữa theo chiều dọc (tùy chọn)
-        };
-        row.getCell(2).alignment = {
-          wrapText: true, // Bọc văn bản để tránh tràn nội dung
-        };
-      });
-      worksheetDmMhbhyt.autoFilter = {
-        from: "A1",
-        to: "B1",
-      };
+      // // Tạo worksheet DM mức hưởng bhyt
+      // const worksheetDmMhbhyt = workbook.addWorksheet("Mức hưởng BHYT");
+      // worksheetDmMhbhyt.columns = [
+      //   { header: "Mã", key: "code", width: 15 }, // Cột 1
+      //   { header: "Diễn giải", key: "name", width: 100 }, // Cột 2 với chiều rộng 30
+      // ];
+      // // Tô màu cho tiêu đề
+      // const headerRowMhbhyt = worksheetDmMhbhyt.getRow(1); // Lấy hàng tiêu đề
+      // headerRowMhbhyt.eachCell((cell) => {
+      //   cell.fill = {
+      //     type: "pattern",
+      //     pattern: "solid",
+      //     fgColor: { argb: "FFADD8E6" }, // Màu xanh nước biển nhạt
+      //   };
+      // });
+      // // Căn giữa tiêu đề
+      // headerRowMhbhyt.eachCell((cell) => {
+      //   cell.alignment = {
+      //     horizontal: "center", // Căn giữa theo chiều ngang
+      //     vertical: "middle", // Căn giữa theo chiều dọc (tùy chọn)
+      //   };
+      // });
+      // // Tạo các hàng từ dữ liệu JSON
+      // mhbhyt.forEach((dt) => {
+      //   const row = worksheetDmMhbhyt.addRow([dt.code, dt.name]); // Thêm từng hàng vào Excel
+      //   // Chỉ căn giữa cột đầu tiên
+      //   row.getCell(1).alignment = {
+      //     horizontal: "center", // Căn giữa dữ liệu theo chiều ngang
+      //     vertical: "middle", // Căn giữa theo chiều dọc (tùy chọn)
+      //   };
+      //   row.getCell(2).alignment = {
+      //     wrapText: true, // Bọc văn bản để tránh tràn nội dung
+      //   };
+      // });
+      // worksheetDmMhbhyt.autoFilter = {
+      //   from: "A1",
+      //   to: "B1",
+      // };
 
-      // Tạo worksheet DM DMHC
-      const worksheetDmDmhc = workbook.addWorksheet("DMHC");
-      worksheetDmDmhc.getCell("A1").value = {
-        text: "Tra cứu danh mục hành chính, bệnh viện",
-        hyperlink:
-          "http://viettel-ca.vn/download/soft/danh_muc_hanh_chinh.xlsx",
-        tooltip: "Download từ trang chủ của Viettel",
-      };
-      worksheetDmDmhc.getCell("A1").font = {
-        underline: true, // Gạch dưới
-        color: { argb: "0000FF" }, // Màu xanh lam
-      };
-      worksheetDmDmhc.getColumn(1).width = 60;
+      // // Tạo worksheet DM DMHC
+      // const worksheetDmDmhc = workbook.addWorksheet("DMHC");
+      // worksheetDmDmhc.getCell("A1").value = {
+      //   text: "Tra cứu danh mục hành chính, bệnh viện",
+      //   hyperlink:
+      //     "http://viettel-ca.vn/download/soft/danh_muc_hanh_chinh.xlsx",
+      //   tooltip: "Download từ trang chủ của Viettel",
+      // };
+      // worksheetDmDmhc.getCell("A1").font = {
+      //   underline: true, // Gạch dưới
+      //   color: { argb: "0000FF" }, // Màu xanh lam
+      // };
+      // worksheetDmDmhc.getColumn(1).width = 60;
+      // BỎ CÁC PHẦN DANH MỤC SHEET LIÊN QUAN
 
       // 2. THIẾT KẾ SHEET DỮ LIỆU
       // cột định nghĩa từ A - BD
@@ -611,6 +612,22 @@ export default {
         } else {
           row.getCell(36).value = "0"; // Cột AJ
         }
+
+        // Cột AS 45 - AX 50
+        row.getCell(45).value = item.tentinh; 
+        row.getCell(46).value = item.matinh;
+        row.getCell(47).value = item.tenquanhuyen; 
+        row.getCell(48).value = item.maquanhuyen; 
+        row.getCell(49).value = item.tenxaphuong; 
+        row.getCell(50).value = item.maxaphuong; 
+
+        // Cột AY 51 - BD 56
+        row.getCell(51).value = item.tentinh; 
+        row.getCell(52).value = item.matinh; 
+        row.getCell(53).value = item.tenquanhuyen;
+        row.getCell(54).value = item.maquanhuyen; 
+        row.getCell(55).value = item.tenxaphuong; 
+        row.getCell(56).value = item.maxaphuong; 
 
         row.getCell(57).value = item.tennguoitao; // Cột BE
         row.getCell(59).value = item.dienthoai; // Cột BG
