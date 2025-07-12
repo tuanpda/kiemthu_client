@@ -2917,14 +2917,28 @@ export default {
 
       let tongThang = 0;
       let thangTu2026 = 0;
+      let thangTruoc01072025 = 0;
+      let thangSau01072025 = 0;
+
       let month = startMonth;
       let year = startYear;
 
       while (year < endYear || (year === endYear && month <= endMonth)) {
         tongThang++;
+
+        // từ 2026 trở đi
         if (year >= 2026) {
           thangTu2026++;
         }
+
+        // mốc 01/07/2025
+        if (year < 2025 || (year === 2025 && month <= 6)) {
+          thangTruoc01072025++;
+        } else {
+          thangSau01072025++;
+        }
+
+        // tăng tháng
         month++;
         if (month > 12) {
           month = 1;
@@ -2934,97 +2948,95 @@ export default {
 
       const thangHotro = tongThang - thangTu2026;
 
+      console.log('Tháng trước 1/7:', thangTruoc01072025)
+      console.log('Tháng sau 1/7:', thangSau01072025)
+
       // === BƯỚC 2: TÍNH TỶ LỆ VÀ TIỀN HỖ TRỢ ===
       const tyleDong = this.tyledongbhyt / 100;
       const castMucdong = muctiendong * tyleDong;
       const castSubTwhotro = this.chuanngheo * tyleDong;
+      // TÌM LOẠI ĐỐI TƯỢNG ĐÓNG
+      // 1. THEO MỨC MỚI
       const doituong = this.doituongdong.find(
         (d) => d.madoituong === madoituong
       );
       const tyleHotroTW = doituong ? doituong.tylehotro : 0;
 
-      const tienTrungUongHoTro = castSubTwhotro * (tyleHotroTW / 100);
+      // 2. THEO MỨC CŨ
+      const doituongdongCu = [
+        { madoituong: "BT", tylehotro: 10 },
+        { madoituong: "CN", tylehotro: 25 },
+        { madoituong: "N", tylehotro: 30 },
+      ];
+      const doituongCu = doituongdongCu.find(
+        (d) => d.madoituong === madoituong
+      );
+      const tyleHotroTWMucCu = doituongCu ? doituongCu.tylehotro : 0;
+
+
+      // NGÂN SÁCH NHÀ NƯỚC HỖ TRỢ
+      console.log(
+        "Ngân sách nhà nước hỗ trợ cho",
+        madoituong, 
+        "theo mức mới là :",
+        tyleHotroTW
+      );
+      console.log(
+        "Ngân sách nhà nước hỗ trợ cho",
+        madoituong, 
+        "theo mức cũ là :",
+        tyleHotroTWMucCu
+      );
+
       const tienDiaPhuongHoTro =
         castSubTwhotro * (this.tylediaphuonghotroIs / 100);
-      const tongHoTroDong = tienTrungUongHoTro + tienDiaPhuongHoTro;
+      console.log(
+        "Ngân sách địa phương hỗ trợ cho",
+        madoituong,
+        "là :",
+        tienDiaPhuongHoTro
+      );
 
-      // console.log("Tiền Trung ương hỗ trợ: ", tienTrungUongHoTro);
-      // console.log("Tiền Địa phương hỗ trợ: ", tienDiaPhuongHoTro);
-      // console.log("Tổng tiền hỗ trợ: ", tongHoTroDong);
+      // ĐẾN ĐOẠN NÀY SẼ RẼ NHÁNH. NẾU NHƯ CÓ THÁNG TRƯỚC MỐC 1/7/2025 THÌ
+      // TOÀN BỘ NGÂN SÁCH TRUNG ƯƠNG SẼ ĂN THEO MỨC CŨ
+      // CHỈ CÓ ĐÓNG MỚI HOÀN TOÀN TỪ THÁNG 7/2025 TRỞ ĐI THÌ TÍNH THEO MỨC MỚI
 
-      const hotro_truoc2026 = tongHoTroDong;
-      const hotro_sau2026 = tienTrungUongHoTro;
+      let tienCanNap = 0; // tổng tiền cần phải nạp
 
-      // === BƯỚC 3: TÍNH SỐ THÁNG TRỄ VÀ LÃI SUẤT ===
-      const today = new Date();
-      const [startMonthLai, startYearLai] = tuthang.split("/").map(Number);
-      const checkDongLaiChamDong =
-        (today.getFullYear() - startYearLai) * 12 +
-        (today.getMonth() + 1 - startMonthLai);
+      if (thangTruoc01072025 > 0) {
+        console.log('TỔNG MỨC HỖ TRỢ CHỈ CÓ NSNN MỨC CŨ CHO TOÀN BỘ QUÁ TRÌNH ĐÓNG')
+        // Tiền trung ương hỗ trợ (danh mục hỗ trợ cũ)
+        const tienTrungUongHoTro = castSubTwhotro * (tyleHotroTWMucCu / 100);
+        const tongTienHoTro = tienTrungUongHoTro + tienDiaPhuongHoTro
 
-      // console.log("Hiệu tháng tính lãi:", checkDongLaiChamDong);
+        const hotro_truoc2026 = tongTienHoTro;
+        const hotro_sau2026 = tienTrungUongHoTro;
 
-      let thangQuenDong = 0;
-      const phuongthuc = Number(maphuongthucdong);
-
-      if (phuongthuc === 1 && checkDongLaiChamDong > 0)
-        thangQuenDong = checkDongLaiChamDong;
-
-      if (phuongthuc === 3 && checkDongLaiChamDong >= 3)
-        thangQuenDong = checkDongLaiChamDong - 2;
-
-      if (phuongthuc === 6 && checkDongLaiChamDong > 3)
-        thangQuenDong = checkDongLaiChamDong - 3;
-
-      if (phuongthuc === 12 && checkDongLaiChamDong > 6)
-        thangQuenDong = checkDongLaiChamDong - 6;
-
-      // console.log("Tháng quên đóng (có lãi):", thangQuenDong);
-
-      // === BƯỚC 4: TÍNH TIỀN CẦN NẠP ===
-      let tienCanNap = 0;
-      let tienLai = 0; // phần lãi tách riêng để log
-
-      if (thangQuenDong === 0) {
-        // console.log("KHÔNG CÓ LÃI");
         const tienCoHoTro = (castMucdong - hotro_truoc2026) * thangHotro;
         const tienKoHoTro = (castMucdong - hotro_sau2026) * thangTu2026;
+        console.log("Tiền trước 31/12/2205", tienCoHoTro); 
+        console.log("Tiền từ 01/01/2026", tienKoHoTro); 
 
         tienCanNap = tienCoHoTro + tienKoHoTro;
-        // console.log("Tiền cần nạp (không lãi):", tienCanNap);
-      } else {
-        // console.log("CÓ LÃI: BẮT ĐẦU TÍNH");
-        const laiSuat = 0.00322;
-        const tongDongCoLai =
-          castMucdong * phuongthuc * Math.pow(1 + laiSuat, thangQuenDong);
-        console.log("TỔNG PHẢI NẠP: ", Math.round(tongDongCoLai)); // đây là tổng phải nạp khi chưa có trừ đi hỗ trợ
+        console.log("Tiền cần nạp:", Math.round(tienCanNap));     
+      }else{
+        console.log('TỔNG MỨC HỖ TRỢ CHỈ CÓ NSNN MỨC CŨ CHO TOÀN BỘ QUÁ TRÌNH ĐÓNG')
+        // Tiền trung ương hỗ trợ (danh mục hỗ trợ cũ)
+        const tienTrungUongHoTro = castSubTwhotro * (tyleHotroTW / 100);
+        const tongTienHoTro = tienTrungUongHoTro + tienDiaPhuongHoTro
 
-        const tongHotro =
-          hotro_truoc2026 * thangHotro + hotro_sau2026 * thangTu2026;
-        // console.log("Tổng hỗ trợ: ", tongHotro);
+        const hotro_truoc2026 = tongTienHoTro;
+        const hotro_sau2026 = tienTrungUongHoTro;
 
-        tienLai = tongDongCoLai - castMucdong * phuongthuc;
-        tienCanNap = tongDongCoLai - tongHotro;
-        // console.log("Tổng tiền có lãi phải nạp:", tienCanNap);
+        const tienCoHoTro = (castMucdong - hotro_truoc2026) * thangHotro;
+        const tienKoHoTro = (castMucdong - hotro_sau2026) * thangTu2026;
+        console.log("Tiền trước 31/12/2205", tienCoHoTro); 
+        console.log("Tiền từ 01/01/2026", tienKoHoTro); 
+
+        tienCanNap = tienCoHoTro + tienKoHoTro;
+        console.log("Tiền cần nạp:", Math.round(tienCanNap));
       }
 
-      // === PHẦN THÊM MỚI: GOM LOG THEO BẢNG GIAO DIỆN TỔNG HỢP ===
-      console.log("======== TỔNG HỢP ========");
-      console.log("=== THÔNG TIN ĐÓNG NẠP ===");
-      console.log("Từ tháng: ", tuthang);
-      console.log("Đến tháng: ", denthang);
-      console.log("Tổng tháng:", tongThang);
-      console.log("Tháng hỗ trợ:", thangHotro);
-      console.log("Tháng hiện hết hỗ trợ của địa phương:", thangTu2026);
-      console.log("=== THÔNG TIN TÍNH TIỀN ===");
-      console.log("Trong đó lãi:", Math.round(tienLai));
-      console.log("Số tháng quên đóng lãi: ", thangQuenDong);
-      console.log("NSNN Hỗ trợ:", Math.round(tienTrungUongHoTro * tongThang));
-      console.log("NSĐP Hỗ trợ:", Math.round(tienDiaPhuongHoTro * thangHotro));
-      console.log("Hỗ trợ khác:", 0);
-      console.log("NLĐ phải nộp:", Math.round(tienCanNap));
-      console.log("NLĐ đã nộp:", 0);
-      console.log("===========================");
       return Math.round(tienCanNap);
     },
 

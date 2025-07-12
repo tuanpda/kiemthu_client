@@ -757,7 +757,7 @@
 </template>
 
 <script>
-// import company from "@/config.company";
+import company from "@/config.company";
 import { mixinDmBhxh } from "../../mixins/mixinDmBhxh";
 import createNumberMask from "text-mask-addons/dist/createNumberMask";
 const { DateTime } = require("luxon");
