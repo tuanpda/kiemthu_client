@@ -7,7 +7,7 @@ export default {
   // clientURL: "http://14.224.129.177",
   apiBaseURL: "http://ansinhhonglam.com:4209",
   clientURL: "http://ansinhhonglam.com",
-  port_client: 80,
+  port_client: 8001,
   port_backend: 4209,
   host: "192.168.1.97", // MÁY CHỦ TUANPDA
   namebienlai: "ansinhhonglam",

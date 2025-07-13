@@ -47,7 +47,7 @@
               <td style="text-align: center">Số tháng</td>
               <td style="text-align: center">Số tiền phải đóng</td>
               <td style="text-align: center">Tỉnh / Thành phố</td>
-              <td style="text-align: center">Quận / Huyện</td>
+              <!-- <td style="text-align: center">Quận / Huyện</td> -->
               <td style="text-align: center">Xã phường</td>
               <td style="text-align: center">Tổ thôn</td>
               <!-- <td style="text-align: center">Bệnh viện tỉnh</td> -->
@@ -235,21 +235,21 @@
               <td style="text-align: center">
                 <div class="select is-fullwidth is-small">
                   <select
-                    v-model="item.info_tinh.matinh"
+                    v-model="item.matinh"
                     @change="provinceChange($event, index)"
                   >
                     <option
-                      v-for="(dt, index) in dmtinhthanhpho"
+                      v-for="(dt, index) in cq2cap_Tinh"
                       :key="index"
-                      :value="dt.matinh"
+                      :value="dt.province_code"
                     >
-                      {{ dt.tentinh }}
+                      {{ dt.name }}
                     </option>
                   </select>
                 </div>
               </td>
               <!-- quận huyện -->
-              <td style="text-align: center">
+              <!-- <td style="text-align: center">
                 <div class="select is-fullwidth is-small">
                   <select
                     @change="quanhuyenChange($event, index)"
@@ -268,10 +268,10 @@
                     </option>
                   </select>
                 </div>
-              </td>
+              </td> -->
               <!-- xã phường -->
               <td style="text-align: center">
-                <div class="select is-fullwidth is-small">
+                <!-- <div class="select is-fullwidth is-small">
                   <select
                     @change="xaphuongChange($event, index)"
                     :disabled="isDisabled_Xaphuong"
@@ -289,7 +289,22 @@
                       {{ dt.tenxaphuong }}
                     </option>
                   </select>
-                </div>
+                </div> -->
+                <v-select
+                  v-model="item.maxaphuong"
+                  :options="item.info_xaphuong"
+                  label="ward_name"
+                  :reduce="b => b.ward_code"
+                  :get-option-label="val => {
+                    if (typeof val === 'string') {
+                      const found = item.info_xaphuong.find(x => x.ward_code === val);
+                      return found ? found.ward_name : val;
+                    }
+                    return val.ward_name;
+                  }"
+                  @input="xaphuongChange($event, index)"
+                  :append-to-body="true"
+                />
               </td>
               <!-- tổ thôn -->
               <td style="text-align: center">
@@ -1457,11 +1472,16 @@ export default {
       dulieuInbienlai: [],
       dulieuTravedeinbienlai: [],
       lockButtonXacnhaninbldt: false, // khóa nút xác nhận biên lai khi đã gửi
+
+      // lam chinh quyen 2 cap 13/7/2025
+      cq2cap_Tinh: [],
+      cq2cap_Huyen : [],
     };
   },
 
   mounted() {
     this.isRoleSent = this.user.res_sent;
+    this.loadTinh()
   },
 
   async created() {
@@ -1561,7 +1581,6 @@ export default {
             `/api/nguoihuong/find-nguoihuong-masobhxh-theodstg-timhanthe?soSoBhxh=${masobhxh}`
           );
 
-          // console.log(res.data);
           if (res.data.length > 0) {
             // Tìm bản ghi có denNgay lớn nhất
             const latestRecord = res.data.reduce((max, curr) => {
@@ -1579,12 +1598,10 @@ export default {
               `/api/nguoihuong/tim-kiem-thong-tin-hgd?soBhxh=${masobhxh}&SO_DDCN_CCCD_BCA=''`
             );
             let soCmnd_hgd = "";
-            let dataHgd;
             // console.log(resHGD.data.canhan.SO_DDCN_CCCD_BCA);
             if (resHGD.data.canhan !== null) {
               soCmnd_hgd = resHGD.data.canhan.SO_DDCN_CCCD_BCA;
               // console.log(resHGD);
-              dataHgd = resHGD.data.canhan;
             }
 
             this.isLoading = false;
@@ -1670,34 +1687,29 @@ export default {
               // console.log("🎯 Hạn thẻ từ (tungay):", this.items[index].tungay);
 
               this.items[index].matinh = data.maTinhLh;
+              // CODE MOI. DIA PHUONG 2 CAP. LAY MA TINH TU DL THE
               // đi tìm tên tỉnh
               const res_tinh = await this.$axios.get(
-                `/api/nguoihuong/find-tentinh?matinh=${data.maTinhLh}`
+                `/api/danhmucs/hanhchinh2cap-find-tentinh?province_code=${data.maTinhLh}`
               );
+              // console.log(res_tinh.data);
               if (res_tinh.data.length > 0) {
-                this.items[index].tentinh = res_tinh.data[0].tentinh;
+                this.items[index].tentinh = res_tinh.data[0].name;
                 // console.log(this.items[index].tentinh);
               }
-              this.items[index].maquanhuyen = data.maHuyenLh;
-              // đi tìm tên quận huyện
-              const res_huyen = await this.$axios.get(
-                `/api/nguoihuong/find-tenhuyen?matinh=${data.maTinhLh}&maquanhuyen=${data.maHuyenLh}`
-              );
-              if (res_huyen.data.length > 0) {
-                this.items[index].tenquanhuyen = res_huyen.data[0].tenquanhuyen;
-                // console.log(this.items[index].tenquanhuyen);
-              }
-              this.items[index].maxaphuong = data.maXaLh;
-              // đi tìm tên xã
+              
+              //  TÌM VÀ GÁN LẠI TÊN XÃ MỚI 2 CẤP              
               const res_xa = await this.$axios.get(
-                `/api/nguoihuong/find-tenxa?matinh=${data.maTinhLh}&maquanhuyen=${data.maHuyenLh}&maxaphuong=${data.maXaLh}`
+                `/api/danhmucs/hanhchinh2cap-find-tenxa?old_ward_code=${data.maXaLh}`
               );
-              // console.log(res_xa);
-
+              // console.log(res_xa.data)
               if (res_xa.data.length > 0) {
-                this.items[index].tenxaphuong = res_xa.data[0].tenxaphuong;
+                this.items[index].tenxaphuong = res_xa.data[0].ward_name;
+                this.items[index].maxaphuong = res_xa.data[0].ward_code
                 // console.log(this.items[index].tenxaphuong);
+                // console.log(this.items[index].maxaphuong);
               }
+
               this.items[index].tothon = data.diaChiHk;
               this.items[index].benhvientinh = data.maTinhLh;
             } catch (error) {
@@ -1799,37 +1811,61 @@ export default {
                 // console.log("Mã tỉnh:", maTinh); // "42"
                 // console.log("Mã huyện:", maHuyen); // "449"
                 // console.log("Mã xã:", maXa); // "18754"
-
-                this.items[index].matinh = maTinh;
+                
+                // CODE MOI. DIA PHUONG 2 CAP. LAY MA TINH TU DL THE
                 // đi tìm tên tỉnh
                 const res_tinh = await this.$axios.get(
-                  `/api/nguoihuong/find-tentinh?matinh=${maTinh}`
+                  `/api/danhmucs/hanhchinh2cap-find-tentinh?province_code=${maTinh}`
                 );
+                // console.log(res_tinh.data);
                 if (res_tinh.data.length > 0) {
-                  this.items[index].tentinh = res_tinh.data[0].tentinh;
+                  this.items[index].tentinh = res_tinh.data[0].name;
                   // console.log(this.items[index].tentinh);
                 }
-                this.items[index].maquanhuyen = maHuyen;
-                // đi tìm tên quận huyện
-                const res_huyen = await this.$axios.get(
-                  `/api/nguoihuong/find-tenhuyen?matinh=${maTinh}&maquanhuyen=${maHuyen}`
-                );
-                if (res_huyen.data.length > 0) {
-                  this.items[index].tenquanhuyen =
-                    res_huyen.data[0].tenquanhuyen;
-                  // console.log(this.items[index].tenquanhuyen);
-                }
-                this.items[index].maxaphuong = maXa;
-                // đi tìm tên xã
-                const res_xa = await this.$axios.get(
-                  `/api/nguoihuong/find-tenxa?matinh=${maTinh}&maquanhuyen=${maHuyen}&maxaphuong=${maXa}`
-                );
-                // console.log(res_xa);
 
+                //  TÌM VÀ GÁN LẠI TÊN XÃ MỚI 2 CẤP              
+                const res_xa = await this.$axios.get(
+                  `/api/danhmucs/hanhchinh2cap-find-tenxa?old_ward_code=${maXa}`
+                );
+                // console.log(res_xa.data)
                 if (res_xa.data.length > 0) {
-                  this.items[index].tenxaphuong = res_xa.data[0].tenxaphuong;
+                  this.items[index].tenxaphuong = res_xa.data[0].ward_name;
+                  this.items[index].maxaphuong = res_xa.data[0].ward_code
                   // console.log(this.items[index].tenxaphuong);
+                  // console.log(this.items[index].maxaphuong);
                 }
+
+                // this.items[index].matinh = maTinh;
+                // // đi tìm tên tỉnh
+                // const res_tinh = await this.$axios.get(
+                //   `/api/nguoihuong/find-tentinh?matinh=${maTinh}`
+                // );
+                // if (res_tinh.data.length > 0) {
+                //   this.items[index].tentinh = res_tinh.data[0].tentinh;
+                //   // console.log(this.items[index].tentinh);
+                // }
+                // this.items[index].maquanhuyen = maHuyen;
+                // // đi tìm tên quận huyện
+                // const res_huyen = await this.$axios.get(
+                //   `/api/nguoihuong/find-tenhuyen?matinh=${maTinh}&maquanhuyen=${maHuyen}`
+                // );
+                // if (res_huyen.data.length > 0) {
+                //   this.items[index].tenquanhuyen =
+                //     res_huyen.data[0].tenquanhuyen;
+                //   // console.log(this.items[index].tenquanhuyen);
+                // }
+                // this.items[index].maxaphuong = maXa;
+                // // đi tìm tên xã
+                // const res_xa = await this.$axios.get(
+                //   `/api/nguoihuong/find-tenxa?matinh=${maTinh}&maquanhuyen=${maHuyen}&maxaphuong=${maXa}`
+                // );
+                // // console.log(res_xa);
+
+                // if (res_xa.data.length > 0) {
+                //   this.items[index].tenxaphuong = res_xa.data[0].tenxaphuong;
+                //   // console.log(this.items[index].tenxaphuong);
+                // }
+
                 this.items[index].tothon = data.diaChi;
                 this.items[index].benhvientinh = maTinh;
               } catch (error) {
@@ -1977,6 +2013,18 @@ export default {
           console.log(error);
         }
       }
+    },
+
+        // HANH CHINH 2 CAP
+        async loadTinh(){
+      const res = await this.$axios.get(
+        `/api/danhmucs/hanhchinh2cap-tinh`
+      );
+      // console.log(res.data);
+      if(res.data.length > 0){
+        this.cq2cap_Tinh=res.data
+      }
+          
     },
 
     async checkItemData(item, index) {
@@ -2636,7 +2684,7 @@ export default {
       }
     },
 
-    addRow() {
+    async addRow() {
       this.lockButtonXacnhaninbldt = false;
       const phuongAnMacDinh = this.phuongan.find(
         (p) => p.maphuongan === "ON"
@@ -2649,6 +2697,13 @@ export default {
       const phuongThucMacDinh = this.phuongthucdong.find(
         (p) => p.maphuongthuc === "12"
       ) || { maphuongthuc: "", tenphuongthuc: "" };
+
+      // load xã theo tỉnh 
+      const response = await this.$axios.get(
+          `/api/danhmucs/hanhchinh2cap-xa-with-ma-tinh?province_code=${this.matinh}`
+        );
+      const dataXa = response.data
+
       try {
         this.items.push({
           matochuc: this.user.matochuc,
@@ -2687,7 +2742,7 @@ export default {
           info_huyen: this.dmquanhuyen,
           maquanhuyen: "",
           tenquanhuyen: "",
-          info_xaphuong: [],
+          info_xaphuong: dataXa,
           maxaphuong: "",
           tenxaphuong: "",
           tothon: "",
@@ -2841,16 +2896,25 @@ export default {
       // lấy thông tin thay đổi từ người dùng select
       const matinh = e.target.value;
       const tentinh = e.target.options[e.target.selectedIndex].text;
+      
       // lấy dữ liệu quận huyện từ mã tỉnh đã được chọn
       try {
+        this.isLoading = true
         const response = await this.$axios.get(
-          `/api/danhmucs/dmquanhuyenwithmatinh?matinh=${matinh}`
+          `/api/danhmucs/hanhchinh2cap-xa-with-ma-tinh?province_code=${matinh}`
         );
+        // console.log(response.data);
+        
         // bind dữ liệu vào dữ liệu select của items để cho từng item sử dụng
-        this.items[index].info_huyen = response.data;
-        this.items[index].matinh = matinh;
-        this.items[index].tentinh = tentinh;
+        if(response.data.length > 0){
+          this.checkXaphuongOpen = true;
+          this.items[index].info_xaphuong = response.data;
+          this.items[index].matinh = matinh;
+          this.items[index].tentinh = tentinh;
+        }
+        this.isLoading=false
       } catch (error) {
+        this.isLoading=false
         console.error("Error fetching data:", error);
       }
     },
@@ -2874,12 +2938,19 @@ export default {
       }
     },
 
-    // xã phường
-    async xaphuongChange(e, index) {
-      const maxaphuong = e.target.value;
-      const tenxaphuong = e.target.options[e.target.selectedIndex].text;
-      this.items[index].maxaphuong = maxaphuong;
-      this.items[index].tenxaphuong = tenxaphuong;
+    async xaphuongChange(ward_code, index) {
+      const item = this.items[index];
+
+      // Tìm object bệnh viện trong danh sách
+      const selected = item.info_xaphuong.find(
+        b => b.ward_code === ward_code
+      );
+
+      // Gán mã và tên bệnh viện
+      item.maxaphuong = ward_code;
+      item.tenxaphuong = selected ? selected.ward_name : "";
+
+      // console.log(this.items)
     },
 
     // tỉnh bệnh viện
@@ -3166,14 +3237,6 @@ export default {
           return false;
         }
 
-        if (!this.items[i].maquanhuyen || !this.items[i].tenquanhuyen) {
-          this.$toasted.show("Thiếu quận huyện", {
-            duration: 3000,
-            theme: "bubble",
-          });
-
-          return false;
-        }
 
         if (!this.items[i].maxaphuong || !this.items[i].tenxaphuong) {
           this.$toasted.show("Thiếu xã phường", {
