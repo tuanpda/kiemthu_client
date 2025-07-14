@@ -385,7 +385,8 @@ export default {
         row.getCell(3).value = item.masobhxh; // Cột C
 
         // Cột F
-        row.getCell(6).value = `${item.maphuongan} - ${item.tenphuongan}`;
+        // row.getCell(6).value = `${item.maphuongan} - ${item.tenphuongan}`;
+        row.getCell(6).value = `${item.maphuongan}`;
 
         // row.getCell(7).value = item.tylengansachdiaphuong; // Cột G ngân sách địa phương\
         row.getCell(7).value = "20"; // để 0 theo quỳnh nói
@@ -425,7 +426,8 @@ export default {
           }
         }
 
-        row.getCell(12).value = Number(item.sotien); // Cột L tiền thực tế
+        row.getCell(12).value = Number(item.sotien); // Cột L tiền thực te
+        row.getCell(13).value = '4'; // Cột M muc huong
 
         row.getCell(14).value = item.tungay; // Cột N
 
@@ -464,6 +466,9 @@ export default {
           fgColor: { argb: 'FFFF00' } // Màu vàng (yellow)
         };
         row.getCell(36).value = item.cccd; // Cột AJ
+
+        row.getCell(38).value = 'VN'; // Cột AL
+        row.getCell(39).value = 'Kinh' // Cột AM
 
         // add thêm thông tin tỉnh
         row.getCell(42).value = item.tentinh; // Từ cột AP

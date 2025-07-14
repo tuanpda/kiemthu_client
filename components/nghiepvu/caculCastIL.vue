@@ -2106,11 +2106,25 @@ export default {
                 );
                 // console.log(res_xa.data)
                 if (res_xa.data.length > 0) {
-                  this.items[index].tenxaphuong = res_xa.data[0].ward_name;
-                  this.items[index].maxaphuong = res_xa.data[0].ward_code
-                  // console.log(this.items[index].tenxaphuong);
-                  // console.log(this.items[index].maxaphuong);
+                  // this.items[index].tenxaphuong = res_xa.data[0].ward_name;
+                // this.items[index].maxaphuong = res_xa.data[0].ward_code
+                // console.log(this.items[index].tenxaphuong);
+                // console.log(this.items[index].maxaphuong);
+                // 15 tháng 7 2025. HIỆN TẠI VNPT CHƯA CẬP NHẬT DANH MỤC CHÍNH QUYỀN 2 CẤP.
+                // TẠM THỜI ĐƯA VỀ 3 CẤP NHƯ CŨ.
+                this.items[index].tenxaphuong = res_xa.data[0].old_ward_name;
+                this.items[index].maxaphuong = res_xa.data[0].old_ward_code
                 }
+
+              // GÁN THÔNG TIN HUYỆN CŨ. data.maXaLh là mã xã cũ
+                // tìm thông tin quận huyện cũ theo mã xã cũ
+                // select * from dm_xaphuong where matinh=42 and maxaphuong=18070
+                const res_huyencu = await this.$axios.get(
+                  `/api/danhmucs/thongtinquanhuyencu?maxaphuong=${maXa}`
+                );
+                // console.log(res_huyencu.data)
+                this.items[index].maquanhuyen=res_huyencu.data.maquanhuyen
+                this.items[index].tenquanhuyen=res_huyencu.data.tenquanhuyen
 
               // this.items[index].matinh = maTinh;
               // // đi tìm tên tỉnh
@@ -2199,11 +2213,25 @@ export default {
                 );
                 // console.log(res_xa.data)
                 if (res_xa.data.length > 0) {
-                  this.items[index].tenxaphuong = res_xa.data[0].ward_name;
-                  this.items[index].maxaphuong = res_xa.data[0].ward_code
-                  // console.log(this.items[index].tenxaphuong);
-                  // console.log(this.items[index].maxaphuong);
+                  // this.items[index].tenxaphuong = res_xa.data[0].ward_name;
+                // this.items[index].maxaphuong = res_xa.data[0].ward_code
+                // console.log(this.items[index].tenxaphuong);
+                // console.log(this.items[index].maxaphuong);
+                // 15 tháng 7 2025. HIỆN TẠI VNPT CHƯA CẬP NHẬT DANH MỤC CHÍNH QUYỀN 2 CẤP.
+                // TẠM THỜI ĐƯA VỀ 3 CẤP NHƯ CŨ.
+                this.items[index].tenxaphuong = res_xa.data[0].old_ward_name;
+                this.items[index].maxaphuong = res_xa.data[0].old_ward_code
                 }
+
+                // GÁN THÔNG TIN HUYỆN CŨ. data.maXaLh là mã xã cũ
+                // tìm thông tin quận huyện cũ theo mã xã cũ
+                // select * from dm_xaphuong where matinh=42 and maxaphuong=18070
+                const res_huyencu = await this.$axios.get(
+                  `/api/danhmucs/thongtinquanhuyencu?maxaphuong=${maXa}`
+                );
+                // console.log(res_huyencu.data)
+                this.items[index].maquanhuyen=res_huyencu.data.maquanhuyen
+                this.items[index].tenquanhuyen=res_huyencu.data.tenquanhuyen
 
                 // this.items[index].matinh = maTinh;
                 // // đi tìm tên tỉnh
