@@ -968,7 +968,7 @@ export default {
       );
       this.dmquanhuyen = res_quanhuyen.data;
       const res_benhvien = await this.$axios.get(
-        `/api/danhmucs/dmbenhvienwithtinh-thachha?matinh=${this.matinh}`
+        `/api/danhmucs/dmbenhvienwithtinh-${company.benhvien}?matinh=${this.matinh}`
       );
       this.dmbenhvien = res_benhvien.data;
     } else {
@@ -1169,7 +1169,7 @@ export default {
               );
               // console.log(res_tinh.data);
               if (res_tinh.data.length > 0) {
-                this.items[index].tentinh = res_tinh.data[0].name;
+                this.items[index].tentinh = `Tỉnh ${res_tinh.data[0].name}`;
                 // console.log(this.items[index].tentinh);
               }
               
@@ -1184,6 +1184,16 @@ export default {
                 // console.log(this.items[index].tenxaphuong);
                 // console.log(this.items[index].maxaphuong);
               }
+
+              // GÁN THÔNG TIN HUYỆN CŨ. data.maXaLh là mã xã cũ
+              // tìm thông tin quận huyện cũ theo mã xã cũ
+              // select * from dm_xaphuong where matinh=42 and maxaphuong=18070
+              const res_huyencu = await this.$axios.get(
+                `/api/danhmucs/thongtinquanhuyencu?maxaphuong=${data.maXaLh}`
+              );
+              // console.log(res_huyencu.data)
+              this.items[index].maquanhuyen=res_huyencu.data.maquanhuyen
+              this.items[index].tenquanhuyen=res_huyencu.data.tenquanhuyen
 
               this.items[index].tothon = data.diaChiHk;
               this.items[index].benhvientinh = data.maTinhLh;
@@ -1294,7 +1304,7 @@ export default {
                 );
                 // console.log(res_tinh.data);
                 if (res_tinh.data.length > 0) {
-                  this.items[index].tentinh = res_tinh.data[0].name;
+                  this.items[index].tentinh = `Tỉnh ${res_tinh.data[0].name}`;
                   // console.log(this.items[index].tentinh);
                 }
 
@@ -1309,6 +1319,17 @@ export default {
                   // console.log(this.items[index].tenxaphuong);
                   // console.log(this.items[index].maxaphuong);
                 }
+
+                // GÁN THÔNG TIN HUYỆN CŨ. data.maXaLh là mã xã cũ
+                // tìm thông tin quận huyện cũ theo mã xã cũ
+                // select * from dm_xaphuong where matinh=42 and maxaphuong=18070
+                const res_huyencu = await this.$axios.get(
+                  `/api/danhmucs/thongtinquanhuyencu?maxaphuong=${maXa}`
+                );
+                // console.log(res_huyencu.data)
+                this.items[index].maquanhuyen=res_huyencu.data.maquanhuyen
+                this.items[index].tenquanhuyen=res_huyencu.data.tenquanhuyen
+
 
                 // this.items[index].matinh = maTinh;
                 // // đi tìm tên tỉnh
@@ -3279,7 +3300,7 @@ export default {
         }
       );
 
-      const diachi = data.tenquanhuyen + "; " + data.tentinh;
+      const diachi = data.tenxaphuong + "; " + data.tentinh;
       // data.tothon + "; " +
 
       doc.text(`Địa chỉ: `, toadoXInfo, toadoYInfo + 8, {

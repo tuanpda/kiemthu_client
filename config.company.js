@@ -13,4 +13,5 @@ export default {
   namebienlai: "ansinhhonglam",
   // urlBienlaidientu: `http://14.224.129.177/tracuubienlaidientu-ansinhhonglam`
   urlBienlaidientu: `http://ansinhhonglam.com/tracuubienlaidientu-ansinhhonglam`,
+  benhvien: 'thachha',
 };

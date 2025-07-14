@@ -2096,7 +2096,7 @@ export default {
                 );
                 // console.log(res_tinh.data);
                 if (res_tinh.data.length > 0) {
-                  this.items[index].tentinh = res_tinh.data[0].name;
+                  this.items[index].tentinh = `Tỉnh ${res_tinh.data[0].name}`;
                   // console.log(this.items[index].tentinh);
                 }
 
@@ -2189,7 +2189,7 @@ export default {
                 );
                 // console.log(res_tinh.data);
                 if (res_tinh.data.length > 0) {
-                  this.items[index].tentinh = res_tinh.data[0].name;
+                  this.items[index].tentinh = `Tỉnh ${res_tinh.data[0].name}`;
                   // console.log(this.items[index].tentinh);
                 }
 
@@ -4494,7 +4494,7 @@ export default {
         }
       );
 
-      const diachi = data.tenquanhuyen + "; " + data.tentinh;
+      const diachi = data.tenxaphuong + "; " + data.tentinh;
       // data.tothon + "; " +
 
       doc.text(`Địa chỉ: `, toadoXInfo, toadoYInfo + 8, {

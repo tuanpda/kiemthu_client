@@ -464,6 +464,22 @@ export default {
           fgColor: { argb: 'FFFF00' } // Màu vàng (yellow)
         };
         row.getCell(36).value = item.cccd; // Cột AJ
+
+        // add thêm thông tin tỉnh
+        row.getCell(42).value = item.tentinh; // Từ cột AP
+        row.getCell(43).value = item.matinh; 
+        row.getCell(44).value = item.tenquanhuyen; 
+        row.getCell(45).value = item.maquanhuyen; 
+        row.getCell(46).value = item.tenxaphuong; 
+        row.getCell(47).value = item.maxaphuong; // Đến cột AU
+
+        row.getCell(48).value = item.tentinh; // Từ cột AV
+        row.getCell(49).value = item.matinh; 
+        row.getCell(50).value = item.tenquanhuyen; 
+        row.getCell(51).value = item.maquanhuyen; 
+        row.getCell(52).value = item.tenxaphuong; 
+        row.getCell(53).value = item.maxaphuong; // Đến cột BA
+
         row.getCell(54).value = item.tennguoitao; // Cột BB
         row.getCell(56).value = item.dienthoai; // Cột BD
         row.getCell(72).value = item.ghichu // cột BT
