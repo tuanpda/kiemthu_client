@@ -3902,7 +3902,7 @@ export default {
 
       var noidungText = "";
 
-      if (data.maloaihinh == "AR" || data.maloaihinh == "BI") {
+      if (data.maloaihinh == "AR" || data.maloaihinh == "BI" || data.maloaihinh == "WI") {
         noidungText = `Tiền đóng BHYT, phương thức đóng ${data.soThang} tháng, từ ngày ${data.tuNgay} đến ngày ${data.denNgay}`;
       } else {
         if (data.maphuongan !== "DB") {

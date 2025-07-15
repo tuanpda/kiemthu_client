@@ -3140,6 +3140,43 @@ export default {
       }
     },
 
+    // dùng để in thử
+    async intestBienLai() {
+      const data = {
+        hosoIdentity:
+          "1752476417445-0wuzqn5hpmq4217728500042196003874042182015895",
+        maSoBhxh: "4217728500",
+        hoTen: "Nguyễn Thị Hoa",
+        soCccd: "042196003874",
+        ngaySinh: "09/03/1996",
+        gioiTinh: "Nữ",
+        soDienThoai: "",
+        nguoithutien: "Đậu Thị Kim Cúc",
+        loaiDt: "BHYT Hộ gia đình làm nông lâm MSTB",
+        soTien: 631800,
+        soThang: "12",
+        tuNgay: "14/07/2025",
+        denNgay: "13/07/2026",
+        tuThang: "",
+        denThang: "",
+        maDaiLy: "DT0034",
+        tenDaiLy: "",
+        createdBy: "04-07-2025 15:09:30",
+        sobienlai: "0000330",
+        ngaybienlai: "04-07-2025 15:09:30",
+        maloaihinh: "AR",
+        tothon: "",
+        tenxaphuong: "Xã Việt Xuyên",
+        tentinh: "Tỉnh Hà Tĩnh",
+        currentYear: "2025",
+        urlNameInvoice:
+          "1751616568179-i9p1i2z4fgg4221317885042097007945042180014714_04_07_2025_15_09_30_0000330_Lê Phú Tài",
+        cccd_nguoithutien: "040175021992",
+      };
+
+      await this.inBienLaiDientu(data);
+    },
+
     async inBienLaiDientu(data) {
       const doc = new jsPDF({
         orientation: "l",
@@ -3322,7 +3359,7 @@ export default {
 
       var noidungText = "";
 
-      if (data.maloaihinh == "AR" || data.maloaihinh == "BI") {
+      if (data.maloaihinh == "AR" || data.maloaihinh == "BI" || data.maloaihinh == "WI") {
         noidungText = `Tiền đóng BHYT, phương thức đóng ${data.soThang} tháng, từ ngày ${data.tuNgay} đến ngày ${data.denNgay}`;
       } else {
         if (data.maphuongan !== "DB") {

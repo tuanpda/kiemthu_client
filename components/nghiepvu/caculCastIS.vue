@@ -3,10 +3,10 @@
     <div style="margin-top: 20px">
       <div class="columns">
         <div class="column">
-          <div
+          <!-- <div
             class="field is-grouped is-grouped-multiline is-justify-content-flex-end"
           >
-            <!-- <p class="control">
+            <p class="control">
               <button @click="addHosokekhai" class="button is-small is-success">
                 <span class="icon">
                   <i class="fas fa-pen-nib"></i>
@@ -21,8 +21,8 @@
                 </span>
                 <span>Import tờ khai</span>
               </button>
-            </p> -->
-          </div>
+            </p>
+          </div> -->
         </div>
       </div>
       <div class="table_wrapper">
@@ -3845,18 +3845,18 @@ export default {
     async intestBienLai() {
       const data = {
         hosoIdentity:
-          "1750751032953-aykztybeu5m4017614355040300020117040175021992",
-        maSoBhxh: "4221317885",
-        hoTen: "Lê Phú Tài",
-        soCccd: "042097007945",
-        ngaySinh: "18/11/1997",
-        gioiTinh: "Nam",
+          "1752476417445-0wuzqn5hpmq4217728500042196003874042182015895",
+        maSoBhxh: "4217728500",
+        hoTen: "Nguyễn Thị Hoa",
+        soCccd: "042196003874",
+        ngaySinh: "09/03/1996",
+        gioiTinh: "Nữ",
         soDienThoai: "",
-        nguoithutien: "Phạm Thị Tuyết",
+        nguoithutien: "Đậu Thị Kim Cúc",
         loaiDt: "BHXH Tự nguyện",
-        soTien: 1185444,
+        soTien: 631800,
         soThang: "1",
-        tuNgay: "",
+        tuNgay: "14/07/2025",
         denNgay: "",
         tuThang: "05/2025",
         denThang: "05/2025",
