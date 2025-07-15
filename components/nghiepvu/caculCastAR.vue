@@ -2826,6 +2826,7 @@ export default {
               maloaihinh: item.maloaihinh,
               tothon: item.tothon,
               tenquanhuyen: item.tenquanhuyen,
+              tenxaphuong: item.tenxaphuong,
               tentinh: item.tentinh,
               currentYear: currentYear,
               urlNameInvoice: urlNameInvoice,
@@ -3309,6 +3310,7 @@ export default {
       );
 
       const diachi = data.tenxaphuong + "; " + data.tentinh;
+      // const diachi = data.tenxaphuong + "; " + data.tentinh;
       // data.tothon + "; " +
 
       doc.text(`Địa chỉ: `, toadoXInfo, toadoYInfo + 8, {
@@ -3505,7 +3507,7 @@ export default {
         console.error("Lỗi khi thêm dữ liệu từ file:", error);
       }
 
-      console.log(this.items);
+      // console.log(this.items);
       
     },
 

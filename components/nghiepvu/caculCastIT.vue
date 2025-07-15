@@ -4029,6 +4029,7 @@ export default {
               maloaihinh: item.maloaihinh,
               tothon: item.tothon,
               tenquanhuyen: item.tenquanhuyen,
+              tenxaphuong: item.tenxaphuong,
               tentinh: item.tentinh,
               currentYear: currentYear,
               urlNameInvoice: urlNameInvoice,
