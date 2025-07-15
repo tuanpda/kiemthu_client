@@ -2612,7 +2612,6 @@ export default {
                   maloaihinh: this.items[i].maloaihinh,
                   tothon: this.items[i].tothon,
                   tenquanhuyen: this.items[i].tenquanhuyen,
-                  tenxaphuong: item.tenxaphuong,
                   tentinh: this.items[i].tentinh,
                   currentYear: currentYear,
                   urlNameInvoice: urlNameInvoice,
@@ -3739,7 +3738,7 @@ export default {
     async onSave() {
       // đoạn này theo code mới là sẽ bấm để lưu dữ liệu biên lai
       // Kiểm tra dữ liệu trước khi ghi
-      // console.log(this.dulieuTravedeinbienlai);
+      console.log(this.dulieuTravedeinbienlai);
       const isDataValid = await this.checkFormData();
       if (!isDataValid) {
         // Dừng quá trình lưu dữ liệu nếu dữ liệu không hợp lệ

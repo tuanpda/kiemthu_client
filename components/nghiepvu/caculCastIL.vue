@@ -2620,7 +2620,6 @@ export default {
                   maloaihinh: this.items[i].maloaihinh,
                   tothon: this.items[i].tothon,
                   tenquanhuyen: this.items[i].tenquanhuyen,
-                  tenxaphuong: item.tenxaphuong,
                   tentinh: this.items[i].tentinh,
                   currentYear: currentYear,
                   urlNameInvoice: urlNameInvoice,
