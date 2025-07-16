@@ -2,7 +2,7 @@ export default {
   companyId: "honglam",
   companyName: "CÔNG TY TNHH TV&DV AN SINH HỒNG LAM",
   companyNameThuong: "Công ty TNHH TV&DV An sinh Hồng Lam",
-  bhxhName: "BẢO HIỂM XÃ HỘI HUYỆN THẠCH HÀ",
+  bhxhName: "BẢO HIỂM XÃ HỘI CƠ SỞ THẠCH HÀ",
   // apiBaseURL: "http://14.224.129.177:4209",
   // clientURL: "http://14.224.129.177",
   apiBaseURL: "http://ansinhhonglam.com:4209",

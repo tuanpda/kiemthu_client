@@ -286,7 +286,7 @@ export default {
 
     this.dailyview = user.madaily;
     this.tochuc = user.matochuc;
-    this.cccd = user.cccd
+    this.cccd = user.cccd;
     this.isRoleSent = user.res_sent;
     this.madaily = user.madaily;
     this.diemthu = user.tendaily;
@@ -545,90 +545,120 @@ export default {
       // console.log(this.trangthaihs);
     },
 
-    xuatC17() {
-      // Bước 1: Chuẩn bị dữ liệu
-      const data = this.data_kekhai.map((item) => {
-        const sotien = item.sotien || 0;
-        const isBHXH = ["IS", "IL"].includes(item.maloaihinh);
-        const isBHYT = ["AR", "BI"].includes(item.maloaihinh);
+    async xuatC17() {
+      this.isLoading = true;
 
-        const ngaybienlai = item.ngaybienlai
-        ? item.ngaybienlai.split(" ")[0] // Lấy phần "23-06-2025"
-        : "";
+      try {
+        const results = await this.getFullDataForExport();
 
-        return {
-          matochuc: item.matochuc,
-          madaily: item.madaily,
-          manhanvienthu: "NV" + item.sohoso.slice(-12),
-          ngaybienlai: ngaybienlai,
-          sobienlai: item.sobienlai,
-          masobhxh: item.masobhxh,
-          sotien_bhxh: isBHXH ? sotien.toLocaleString("vi-VN") : "",
-          sotien_bhyt: isBHYT ? sotien.toLocaleString("vi-VN") : "",
-          ghichu: "",
-        };
-      });
+        if (!results.length) {
+          this.$swal.fire("Không có dữ liệu để xuất!", "", "warning");
+          this.isLoading = false;
+          return;
+        }
 
-      // Bước 2: Tiêu đề cột
-      const customHeader = [
-        "Mã Tổ chức dịch vụ",
-        "Mã điểm thu",
-        "Mã nhân viên thu",
-        "Ngày biên lai",
-        "Số biên lai",
-        "Mã số BHXH người tham gia",
-        "Tiền thu BHXH TN",
-        "Tiền thu BHYT HGĐ",
-        "Ghi chú",
-      ];
+        const data = results.map((item) => {
+          const ngaybienlai = item.ngaybienlai
+            ? item.ngaybienlai.split(" ")[0]
+            : "";
 
-      // Bước 3: Tạo file Excel
-      const worksheet = XLSX.utils.json_to_sheet(data, {
-        header: [
-          "matochuc",
-          "madaily",
-          "manhanvienthu",
-          "ngaybienlai",
-          "sobienlai",
-          "masobhxh",
-          "sotien_bhxh",
-          "sotien_bhyt",
-          "ghichu",
-        ],
-        skipHeader: true,
-      });
+          return {
+            sobienlai: item.sobienlai,
+            ngaybienlai,
+            masobhxh: item.masobhxh,
+            hoten: item.hoten,
+            maphuongthucdong: item.maphuongthucdong,
+            sotien: parseFloat(item.sotien), // kiểu number để Excel SUM được
+            ghichu: item.motaloi,
+          };
+        });
 
-      const formatCurrency = (val) =>
-        val && !isNaN(val) ? Number(val).toLocaleString("vi-VN") : "";
+        const customHeader = [
+          "Số biên lai",
+          "Ngày biên lai",
+          "Mã số BHXH người tham gia",
+          "Họ tên người tham gia",
+          "Số tháng đóng",
+          "Số tiền thu",
+          "Ghi chú",
+        ];
 
-      const total_bhxh = data.reduce(
-        (sum, item) =>
-          sum + (parseInt(item.sotien_bhxh.replace(/,/g, "")) || 0),
-        0
-      );
-      const total_bhyt = data.reduce(
-        (sum, item) =>
-          sum + (parseInt(item.sotien_bhyt.replace(/,/g, "")) || 0),
-        0
-      );
+        const worksheet = XLSX.utils.json_to_sheet(data, {
+          header: [
+            "sobienlai",
+            "ngaybienlai",
+            "masobhxh",
+            "hoten",
+            "maphuongthucdong",
+            "sotien",
+            "ghichu",
+          ],
+          skipHeader: true,
+          origin: "A2", // Ghi dữ liệu từ dòng 2
+        });
 
-      // Bước 4: Ghi tiêu đề tùy chỉnh vào hàng đầu tiên
-      XLSX.utils.sheet_add_aoa(worksheet, [customHeader], { origin: "A1" });
+        // Ghi tiêu đề vào dòng 1
+        XLSX.utils.sheet_add_aoa(worksheet, [customHeader], { origin: "A1" });
 
-      // Bước 5: Tạo file Excel
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "C17");
+        // 🔥 Format số tiền (cột F) theo dạng có dấu phẩy (ngăn cách hàng nghìn)
+        const range = XLSX.utils.decode_range(worksheet["!ref"]);
+        for (let row = 2; row <= range.e.r + 1; row++) {
+          const cellAddress = `F${row}`;
+          if (!worksheet[cellAddress]) continue;
+          worksheet[cellAddress].t = "n"; // đảm bảo là kiểu number
+          worksheet[cellAddress].z = "#,##0"; // format có dấu ngăn cách hàng nghìn
+        }
 
-      const excelBuffer = XLSX.write(workbook, {
-        bookType: "xlsx",
-        type: "array",
-      });
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "C17");
 
-      const fileName = `C17_${new Date().getTime()}.xlsx`;
-      const dataBlob = new Blob([excelBuffer], {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      });
-      saveAs(dataBlob, fileName);
+        const excelBuffer = XLSX.write(workbook, {
+          bookType: "xlsx",
+          type: "array",
+        });
+
+        const fileName = `C17_${new Date().getTime()}.xlsx`;
+        const dataBlob = new Blob([excelBuffer], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+
+        saveAs(dataBlob, fileName);
+      } catch (err) {
+        console.error("❌ Lỗi export:", err);
+        this.$swal.fire("Lỗi khi xuất file!", "", "error");
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async getFullDataForExport() {
+      const baseURL =
+        this.user.role === 2
+          ? "/api/kekhai/kykekhai-search-hoso"
+          : "/api/kekhai/kykekhai-search-hoso-diemthu";
+
+      const query = {
+        trangthaihs: this.trangthaihs,
+        dotkekhai: this.dotkekhai,
+        ngaykekhai: this.ngaykekhaitu,
+        ngaykekhaiden: this.ngaykekhaiden,
+        sohoso: this.sohoso,
+        masobhxh: this.masobhxh,
+        hoten: this.hoten,
+        maloaihinh: this.maloaihinh,
+        page: 1,
+        limit: 9999,
+      };
+
+      if (this.user.role !== 2) {
+        query.cccd = this.cccd;
+        query.madaily = this.madaily;
+      }
+
+      const res = await this.$axios.get(baseURL, { params: query });
+      console.log(res.data.results);
+
+      return res.data.results || [];
     },
 
     async filterData(page) {
