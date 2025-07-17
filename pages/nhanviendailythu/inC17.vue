@@ -52,6 +52,15 @@
       </div>
 
       <div style="margin-top: 20px">
+        <div
+          style="margin: 5px; font-weight: 700; color: #dc3545; font-size: 13px"
+        >
+          Tổng số tiền: {{ tongSoTien | formatNumber }} VNĐ
+          <br />
+          Tổng số biên lai đã in:
+          {{ tongSoDong }}
+        </div>
+
         <div class="table_wrapper">
           <table
             class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth"
@@ -123,9 +132,7 @@
             </tbody>
           </table>
         </div>
-        <div style="margin: 5px; font-weight: 700; color: #dc3545">
-          Tổng tiền: {{ totalSoTien | formatNumber }}
-        </div>
+
         <!-- Phân trang -->
         <div v-if="data_kekhai.length > 0" style="margin-top: 10px">
           <nav
@@ -260,6 +267,9 @@ export default {
       dulieuHuyPheDuyet: [],
       isLoading: false,
       isExport: false,
+
+      tongSoDong: 0,
+      tongSoTien: 0,
     };
   },
 
@@ -281,7 +291,7 @@ export default {
     },
   },
 
-  mounted() {
+  async mounted() {
     const user = this.user;
 
     this.dailyview = user.madaily;
@@ -301,6 +311,7 @@ export default {
     this.getDateTime();
     this.getDmDiemthu();
     this.hosoLoitrave();
+    this.getFullDataForExport();
   },
 
   computed: {
@@ -557,10 +568,23 @@ export default {
           return;
         }
 
+        // Tính tổng tiền chỉ với các dòng trangthai === true
+        const totalAmount = results.reduce((sum, item) => {
+          const trangthai = item.status_naptien;
+          const raw = item.sotien
+            ?.toString()
+            .replace(/\./g, "")
+            .replace(/,/g, "");
+          const value = parseFloat(raw);
+          return trangthai && !isNaN(value) ? sum + value : sum;
+        }, 0);
+
         const data = results.map((item) => {
           const ngaybienlai = item.ngaybienlai
             ? item.ngaybienlai.split(" ")[0]
             : "";
+
+          const trangthai = item.status_naptien;
 
           return {
             sobienlai: item.sobienlai,
@@ -568,9 +592,20 @@ export default {
             masobhxh: item.masobhxh,
             hoten: item.hoten,
             maphuongthucdong: item.maphuongthucdong,
-            sotien: parseFloat(item.sotien), // kiểu number để Excel SUM được
-            ghichu: item.motaloi,
+            sotien: trangthai ? parseFloat(item.sotien) : "",
+            ghichu: trangthai ? "" : "Đã hủy",
           };
+        });
+
+        // 👉 Thêm dòng tổng vào cuối mảng data
+        data.push({
+          sobienlai: "Tổng cộng", // cột A
+          ngaybienlai: "",
+          masobhxh: "",
+          hoten: "",
+          maphuongthucdong: "",
+          sotien: totalAmount, // cột F
+          ghichu: "",
         });
 
         const customHeader = [
@@ -597,8 +632,32 @@ export default {
           origin: "A2", // Ghi dữ liệu từ dòng 2
         });
 
+        // 👉 Merge từ A + số dòng đến E + số dòng (dòng tổng cộng)
+        const totalRow = data.length + 1; // vì dữ liệu bắt đầu từ dòng 2 (A2), header ở dòng 1
+        worksheet["!merges"] = [
+          {
+            s: { r: totalRow - 1, c: 0 }, // start: dòng, cột (A)
+            e: { r: totalRow - 1, c: 4 }, // end:   dòng, cột (E)
+          },
+        ];
+        
+
         // Ghi tiêu đề vào dòng 1
         XLSX.utils.sheet_add_aoa(worksheet, [customHeader], { origin: "A1" });
+
+        // Auto-fit column width
+        const columnWidths = customHeader.map((h, colIdx) => {
+          // Tìm độ dài lớn nhất của header và các giá trị trong từng cột
+          const maxLength = Math.max(
+            h.length,
+            ...data.map((row) => {
+              const value = row[Object.keys(row)[colIdx]];
+              return value ? value.toString().length : 0;
+            })
+          );
+          return { wch: maxLength + 2 }; // thêm padding
+        });
+        worksheet["!cols"] = columnWidths;
 
         // 🔥 Format số tiền (cột F) theo dạng có dấu phẩy (ngăn cách hàng nghìn)
         const range = XLSX.utils.decode_range(worksheet["!ref"]);
@@ -647,7 +706,7 @@ export default {
         hoten: this.hoten,
         maloaihinh: this.maloaihinh,
         page: 1,
-        limit: 9999,
+        limit: 99999,
       };
 
       if (this.user.role !== 2) {
@@ -656,9 +715,32 @@ export default {
       }
 
       const res = await this.$axios.get(baseURL, { params: query });
-      console.log(res.data.results);
+      const results = res.data.results || [];
 
-      return res.data.results || [];
+      // ✅ Tính tổng dòng và tiền từ những dòng đã nạp
+      // ✅ Tổng số biên lai: tính hết
+      const tongSoDong = results.length;
+
+      // ✅ Tổng tiền: chỉ cộng khi status_naptien === 1
+      let tongSoTien = 0;
+
+      results.forEach((item) => {
+        if (item.status_naptien === 1 || item.status_naptien === true) {
+          const raw = item.sotien
+            ?.toString()
+            .replace(/\./g, "")
+            .replace(/,/g, "");
+          const value = parseFloat(raw);
+          if (!isNaN(value)) tongSoTien += value;
+        }
+      });
+
+      // ✅ Gán vào component để hiển thị, KHÔNG ảnh hưởng return
+      this.tongSoDong = tongSoDong;
+      this.tongSoTien = tongSoTien;
+
+      // ✅ Giữ nguyên return để export Excel dùng
+      return results;
     },
 
     async filterData(page) {
