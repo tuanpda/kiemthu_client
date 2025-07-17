@@ -579,23 +579,25 @@ export default {
           return trangthai && !isNaN(value) ? sum + value : sum;
         }, 0);
 
-        const data = results.map((item) => {
-          const ngaybienlai = item.ngaybienlai
-            ? item.ngaybienlai.split(" ")[0]
-            : "";
+        const data = results
+          .filter(
+            (item) => item.status_naptien === true || item.status_naptien === 1
+          ) // ✅ Chỉ lấy các dòng đã duyệt
+          .map((item) => {
+            const ngaybienlai = item.ngaybienlai
+              ? item.ngaybienlai.split(" ")[0]
+              : "";
 
-          const trangthai = item.status_naptien;
-
-          return {
-            sobienlai: item.sobienlai,
-            ngaybienlai,
-            masobhxh: item.masobhxh,
-            hoten: item.hoten,
-            maphuongthucdong: item.maphuongthucdong,
-            sotien: trangthai ? parseFloat(item.sotien) : "",
-            ghichu: trangthai ? "" : "Đã hủy",
-          };
-        });
+            return {
+              sobienlai: item.sobienlai,
+              ngaybienlai,
+              masobhxh: item.masobhxh,
+              hoten: item.hoten,
+              maphuongthucdong: item.maphuongthucdong,
+              sotien: parseFloat(item.sotien),
+              ghichu: "", // đã lọc rồi nên không còn "Đã hủy"
+            };
+          });
 
         // 👉 Thêm dòng tổng vào cuối mảng data
         data.push({
@@ -640,7 +642,6 @@ export default {
             e: { r: totalRow - 1, c: 4 }, // end:   dòng, cột (E)
           },
         ];
-        
 
         // Ghi tiêu đề vào dòng 1
         XLSX.utils.sheet_add_aoa(worksheet, [customHeader], { origin: "A1" });
