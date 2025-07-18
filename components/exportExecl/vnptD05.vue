@@ -531,10 +531,16 @@ export default {
         row.getCell(7).value = item.tuthang;
         row.getCell(8).value = item.maphuongthucdong;
         row.getCell(9).value = "22";
-        row.getCell(10).value = tyleHotroTW.toString();
-        row.getCell(11).value = item.madoituong && tyleHotroTW > 0 ? tienNSNNHT * item.maphuongthucdong : 0;
-        row.getCell(12).value = this.tylediaphuonghotroIs;
-        row.getCell(13).value = tienNSDP * item.maphuongthucdong;
+
+        // row.getCell(10).value = tyleHotroTW.toString();
+        // row.getCell(11).value = item.madoituong && tyleHotroTW > 0 ? tienNSNNHT * item.maphuongthucdong : 0;
+        // row.getCell(12).value = this.tylediaphuonghotroIs;
+        // row.getCell(13).value = tienNSDP * item.maphuongthucdong;
+        row.getCell(10).value = item.tylensnnht;
+        row.getCell(11).value = item.tiennsnnht
+        row.getCell(12).value = item.tylensdp;
+        row.getCell(13).value = item.tiennsdp;
+
         row.getCell(16).value = Number(item.sotien);
         row.getCell(17).value = Number(item.sotien) + tienNSDP * item.maphuongthucdong + tienNSNNHT;
         row.getCell(18).value = item.tentinh;
