@@ -527,18 +527,26 @@ import Swal from "sweetalert2";
 import ExcelJS from "exceljs";
 import * as XLSX from "xlsx";
 const { DateTime } = require("luxon");
+import backgroundImage from "~/assets/images/bhxh.png";
+import qrcode from "~/assets/images/QR-BHXH.png";
+import huyHoadon from "~/assets/images/HUYHOADON.png";
+
+import { mixinDmBhxh } from "../../mixins/mixinDmBhxh";
+import createNumberMask from "text-mask-addons/dist/createNumberMask";
+
+const currencyMask = createNumberMask({
+  prefix: "",
+  allowDecimal: true,
+  includeThousandsSeparator: true,
+  allowNegative: false,
+});
+
 import jsPDF from "jspdf";
-import "~/assets/font/OpenSans-Light-normal";
-import "~/assets/font/OpenSans-SemiBold-normal";
+
 import "~/assets/font/OpenSans-Bold-normal";
 import "~/assets/font/OpenSans_SemiCondensed-Italic-normal";
 import "~/assets/font/OpenSans-ExtraBold-normal";
-import "~/assets/font/OpenSans_Condensed-Bold-normal";
-import "~/assets/font/OpenSans-Regular-normal";
 import "~/assets/font/Times New Roman Bold-normal";
-
-import backgroundImage from "~/assets/images/bhxh.png";
-import qrcode from "~/assets/images/QR-BHXH.png";
 
 import num2words from "vn-num2words";
 
@@ -630,7 +638,7 @@ export default {
 
     this.dailyview = user.madaily;
     this.tochuc = user.matochuc;
-    this.cccd = user.cccd
+    this.cccd = user.cccd;
     this.isRoleSent = user.res_sent;
     this.madaily = user.madaily;
     this.diemthu = user.tendaily;
@@ -954,8 +962,8 @@ export default {
         }
       } else {
         try {
-          console.log(this.cccd);
-          
+          // console.log(this.cccd);
+
           const res = await this.$axios.get(
             `/api/kekhai/kykekhai-search-hoso-diemthu?cccd=${this.cccd}&trangthaihs=${this.trangthaihs}&dotkekhai=${this.dotkekhai}&ngaykekhai=${this.ngaykekhaitu}&ngaykekhaiden=${this.ngaykekhaiden}&sohoso=${this.sohoso}&masobhxh=${this.masobhxh}&hoten=${this.hoten}&madaily=${this.madaily}&maloaihinh=${this.maloaihinh}&page=${page}`
           );
@@ -1002,6 +1010,48 @@ export default {
       }
     },
 
+    async inLaiBienLaiDienTu(dataBienlaidientu) {
+      // NẾU HỦY THÀNH CÔNG THÌ HỦY BIÊN LAI VÀ GHI VÀO DỮ LIỆU
+      // gọi hàm tạo lại hóa đơn
+      const dateStr = dataBienlaidientu.ngaybienlai;
+      const year = dateStr.split(" ")[0].split("-")[2];
+      // console.log(dateStr, year);
+
+      const dataPost = {
+        hosoIdentity: dataBienlaidientu.hosoIdentity,
+        maSoBhxh: dataBienlaidientu.masobhxh,
+        hoTen: dataBienlaidientu.hoten,
+        soCccd: dataBienlaidientu.cccd,
+        ngaySinh: dataBienlaidientu.ngaysinh,
+        gioiTinh: dataBienlaidientu.gioitinh,
+        soDienThoai: dataBienlaidientu.sodienthoai,
+        nguoithutien: dataBienlaidientu.nguoithutien,
+        maloaihinh: dataBienlaidientu.loaihinh,
+        soTien: dataBienlaidientu.sotien,
+        soThang: dataBienlaidientu.sothang,
+        tuNgay: dataBienlaidientu.tungay,
+        denNgay: dataBienlaidientu.denngay,
+        tuThang: dataBienlaidientu.tuthang,
+        denThang: dataBienlaidientu.denthang,
+        maDaiLy: dataBienlaidientu.madaily,
+        tenDaiLy: dataBienlaidientu.tendaily,
+        sobienlai: dataBienlaidientu.sobienlai,
+        ngaybienlai: dataBienlaidientu.ngaybienlai,
+        tothon: dataBienlaidientu.tothon,
+        tenquanhuyen: dataBienlaidientu.tenquanhuyen,
+        tentinh: dataBienlaidientu.tentinh,
+        currentYear: year,
+        urlNameInvoice: dataBienlaidientu.urlNameInvoice,
+        cccd_nguoithutien: dataBienlaidientu.cccd_nguoithutien,
+        lydohuy: dataBienlaidientu.lydohuy,
+        ngayhuybienlai: dataBienlaidientu.ngayhuybienlai,
+        nguoihuybienlai: dataBienlaidientu.nguoihuybienlai,
+      };
+      // console.log(dataPost);
+
+      await this.inBienLaiDientu(dataPost);
+    },
+
     // HÀM XÁC NHẬN HỒ SƠ KE KHAI CHO TRƯỜNG STATUS_NAPTIEN==1
     async xacNhanBienLai() {
       if (!this.selectedItems || this.selectedItems.length === 0) {
@@ -1024,6 +1074,8 @@ export default {
         let ketquaTongHop = [];
         this.isLoading = true;
         for (const item of this.selectedItems) {
+          const nowInVietnam = DateTime.now().setZone("Asia/Ho_Chi_Minh");
+          const formattedDate = nowInVietnam.toFormat("dd-MM-yyyy HH:mm:ss");
           try {
             const res = await this.$axios.post(
               "/api/kekhai/apply-invoice-status",
@@ -1032,6 +1084,8 @@ export default {
                 hoten: item.hoten,
                 masobhxh: item.masobhxh,
                 hosoIdentity: item.hosoIdentity,
+                nguoipheduyet: this.user.name,
+                ngaypheduyet: formattedDate,
               }
             );
 
@@ -1109,6 +1163,8 @@ export default {
         this.isLoading = true;
 
         for (const item of this.selectedItems) {
+          const nowInVietnam = DateTime.now().setZone("Asia/Ho_Chi_Minh");
+          const formattedDate = nowInVietnam.toFormat("dd-MM-yyyy HH:mm:ss");
           try {
             const res = await this.$axios.post(
               "/api/kekhai/cancel-invoice-status",
@@ -1117,6 +1173,12 @@ export default {
                 hoten: item.hoten,
                 masobhxh: item.masobhxh,
                 ghichu: lyDo,
+                nguoipheduyet: this.user.name,
+                ngaypheduyet: formattedDate,
+                hosoIdentity: item.hosoIdentity,
+                lydohuy: lyDo,
+                ngayhuybienlai: formattedDate,
+                nguoihuybienlai: this.user.name,
               }
             );
 
@@ -1129,6 +1191,22 @@ export default {
                 status: "✅ Thành công",
                 message: res.data.message,
               });
+
+              // gọi lại tìm biên lai
+              const dataFindbl = {
+                hosoIdentity: item.hosoIdentity,
+              };
+              const res_finbl = await this.$axios.post(
+                `/api/kekhai/find-bienlaidientu-huybienlai`,
+                dataFindbl
+              );
+              // console.log(res_finbl.data.hs);
+              // const dataBienlaidientu = res_finbl.data.hs;
+              // console.log(dataBienlaidientu);
+              const dataBienlaidientu = res_finbl.data.hs;
+
+              // gọi hàm in lại biên lai
+              await this.inLaiBienLaiDienTu(dataBienlaidientu);
             } else {
               ketquaTongHop.push({
                 _id: res.data.data._id,
@@ -1144,7 +1222,6 @@ export default {
               _id: item._id,
               hoten: item.hoten,
               masobhxh: item.masobhxh,
-              ghichu: res.data.data.ghichu,
               status: "❌ Lỗi hệ thống",
               error: error.response?.data?.message || error.message,
             });
@@ -1312,24 +1389,20 @@ export default {
 
     async xemBienLai(item) {
       // console.log(item.hosoIdentity);
-
       try {
         const res = await this.$axios.get(
           `/api/kekhai/view-item-bienlai?hosoIdentity=${item.hosoIdentity}`
         );
 
-        // console.log(res);
-
-        const hs = res.data.hs;
+        let hs = res.data.hs;
+        let pdfUrl = "";
         if (hs && hs.urlNameInvoice) {
-          const fileName = `${hs.sobienlai}_${encodeURIComponent(
-            hs.hoten
-          )}.pdf`;
-          const pdfUrl = `${company.clientURL}/bienlaidientu/${hs.urlNameInvoice}.pdf`;
-          // console.log(pdfUrl);
-          
-          // const pdfUrl = `http://localhost:1970/bienlaidientu/${hs.urlNameInvoice}.pdf`;
-          // console.log(pdfUrl);
+          const trangthai = hs.active;
+          if (trangthai !== 0) {
+            pdfUrl = `${company.clientURL}/bienlaidientu/${hs.urlNameInvoice}.pdf`;
+          } else {
+            pdfUrl = `${company.clientURL}/bienlaidientu/bienlaidahuy/${hs.urlNameInvoice}.pdf`;
+          }
 
           window.open(pdfUrl, "_blank");
         } else {
@@ -1365,6 +1438,365 @@ export default {
       this.filterData(1);
     },
 
+    async inBienLaiDientu(data) {
+      const doc = new jsPDF({
+        orientation: "l",
+        format: "a5",
+      });
+
+      // Kích thước trang PDF
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+
+      // Kích thước ảnh bạn muốn (ví dụ: 100mm x 70mm)
+      const imageWidth = 100; // Chiều rộng của ảnh
+      const imageHeight = 70; // Chiều cao của ảnh
+
+      // Tính tọa độ để ảnh nằm chính giữa trang
+      const x = (pageWidth - imageWidth) / 2; // Căn giữa theo chiều ngang
+      const y = (pageHeight - imageHeight) / 2; // Căn giữa theo chiều dọc
+
+      // Thêm ảnh vào PDF
+      doc.addImage(backgroundImage, "PNG", x, y, imageWidth, imageHeight);
+      const img = new Image();
+      img.src = backgroundImage; // hoặc base64 string
+
+      const imageWidthHUY = 100; // Chiều rộng của ảnh
+      const imageHeightHUY = 70; // Chiều cao của ảnh
+      // // ĐOẠN NÀY PHẢI XEM XÉT VIỆC CHÈN ẢNH ĐÃ HỦY HOẶC XÁC NHẬN BIÊN LAI
+      doc.addImage(huyHoadon, "PNG", x, y, imageWidthHUY, imageHeightHUY);
+      const img_trangthai = new Image();
+      img_trangthai.src = huyHoadon; // hoặc base64 string
+
+      // lấy lại tâm trang
+      const centerXLydoHuy = pageWidth / 2; // Tâm ngang trang
+      doc.addFont("OpenSans-Bold-normal.ttf", "OpenSans-Bold", "bold");
+      doc.setFont("OpenSans-Bold", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor("#ff0000");
+      doc.text(`Lý do hủy biên lai: ${data.lydohuy}`, centerXLydoHuy, y + 75, {
+        align: "center",
+        fontWeight: "bold",
+      });
+      doc.text(`Người hủy: ${data.nguoihuybienlai}`, centerXLydoHuy, y + 80, {
+        align: "center",
+        fontWeight: "bold",
+      });
+      doc.text(`Ngày hủy: ${data.ngayhuybienlai}`, centerXLydoHuy, y + 85, {
+        align: "center",
+        fontWeight: "bold",
+      });
+
+      // img.onload = () => {
+      //   console.log("✅ Ảnh đã load xong");
+      //   doc.addImage(img, "PNG", x, y, imageWidth, imageHeight);
+      //   console.log("➡️ Đã add image");
+      // };
+
+      // img.onerror = (err) => {
+      //   console.error("❌ Lỗi load ảnh:", err);
+      // };
+
+      // add the font to jsPDF
+      doc.addFont("OpenSans-Bold-normal.ttf", "OpenSans-Bold", "bold");
+      doc.setFont("OpenSans-Bold", "bold");
+      doc.setFontSize(12);
+      doc.setTextColor("#04368c");
+      doc.text(`${company.bhxhName}`, 60, 10, {
+        align: "center",
+        fontWeight: "bold",
+      });
+
+      doc.setFontSize(12);
+      doc.setTextColor("ff0000");
+      doc.text(`${company.companyName}`, 60, 17, {
+        align: "center",
+        fontWeight: "bold",
+      });
+
+      // Đặt màu cho đường line (gạch chân)
+      doc.setDrawColor(248, 215, 218);
+      doc.setLineWidth(0.4); // Độ dày đường gạch
+
+      const y_line = 19; // Vị trí theo chiều dọc
+
+      // Di chuyển sang trái nhiều hơn và rút ngắn chiều dài
+      const x1 = 40; // điểm bắt đầu (trái)
+      const lineLength = 42; // chiều dài line
+      const x2 = x1 + lineLength;
+      doc.line(x1, y_line, x2, y_line);
+
+      doc.addFont("OpenSans-Bold-normal.ttf", "OpenSans-Bold", "bold");
+      doc.setFont("OpenSans-Bold", "bold");
+      doc.setFontSize(10);
+      doc.setTextColor("#04368c");
+      doc.text(`Mẫu số: C45-BB `, 173, 11, {
+        align: "center",
+        fontWeight: "bold",
+      });
+
+      doc.addFont(
+        "OpenSans_SemiCondensed-Italic-normal.ttf",
+        "OpenSans_SemiCondensed-Italic-normal",
+        "italic"
+      );
+      doc.setFont("OpenSans_SemiCondensed-Italic-normal", "italic");
+      doc.setFontSize(9);
+      doc.setTextColor("#04368c");
+      doc.text(`(Ban hành kèm theo Thông tư số 107/2017/TT-BTC `, 175, 15, {
+        align: "center",
+        fontWeight: "bold",
+      });
+      doc.text(`ngày 10/10/2017 của Bộ Tài chính) `, 175, 19, {
+        align: "center",
+        fontWeight: "bold",
+      });
+
+      doc.addFont(
+        "OpenSans-ExtraBold-normal.ttf",
+        "OpenSans-ExtraBold-normal",
+        "bold"
+      );
+      doc.setFont("OpenSans-ExtraBold-normal", "bold");
+      doc.setFontSize(20);
+      doc.setTextColor("#dc143c");
+      doc.text(`BIÊN LAI THU TIỀN `, 105, 35, {
+        align: "center",
+        fontWeight: "bold",
+      });
+
+      doc.addFont(
+        "OpenSans_SemiCondensed-Italic-normal.ttf",
+        "OpenSans_SemiCondensed-Italic-normal",
+        "italic"
+      );
+      doc.setFont("OpenSans_SemiCondensed-Italic-normal", "italic");
+      doc.setFontSize(9);
+      doc.setTextColor("#00008b");
+      doc.text(
+        `Do ${company.companyNameThuong}, tổ chức được Bảo hiểm xã hội uỷ quyền thu phát hành. `,
+        105,
+        41,
+        {
+          align: "center",
+          fontWeight: "bold",
+        }
+      );
+
+      const ngayBienLai = data.ngaybienlai.split(" ")[0];
+      doc.setFontSize(9);
+      doc.setTextColor("#00008b");
+      doc.text(`Ngày: `, 155, 50, {
+        fontWeight: "bold",
+      });
+      doc.text(`${ngayBienLai}`, 165, 50, {
+        fontWeight: "bold",
+      });
+
+      const year = data.ngaybienlai.split("-")[2].split(" ")[0];
+
+      doc.text(`Ký hiệu: `, 155, 55, {
+        fontWeight: "bold",
+      });
+      doc.text(`${data.maloaihinh}-${data.maDaiLy}-${year}`, 165, 55, {
+        fontWeight: "bold",
+      });
+
+      doc.text(`Số: `, 155, 60, {
+        fontWeight: "bold",
+      });
+      doc.text(`${data.sobienlai}`, 165, 60, {
+        fontWeight: "bold",
+      });
+
+      doc.addImage(qrcode, "PNG", 165, 25, 15, 15);
+      //font-times-new-roman-normal
+      const toadoXInfo = 10;
+      const toadoYInfo = 60;
+      doc.addFont(
+        "Times New Roman Bold-normal.ttf",
+        "Times New Roman Bold-normal",
+        "bold"
+      );
+      doc.setFont("Times New Roman Bold-normal", "bold");
+      doc.setFontSize(12);
+      doc.setTextColor("#04368c");
+      doc.text(`Họ và tên người nộp:`, toadoXInfo, toadoYInfo, {
+        fontWeight: "bold",
+      });
+      doc.text(
+        `${data.hoTen} - Mã số BHXH: ${data.maSoBhxh}`,
+        toadoXInfo + 43,
+        toadoYInfo,
+        {
+          fontWeight: "bold",
+        }
+      );
+
+      const diachi = data.tenquanhuyen + "; " + data.tentinh;
+      // data.tothon + "; " +
+
+      doc.text(`Địa chỉ: `, toadoXInfo, toadoYInfo + 8, {
+        fontWeight: "bold",
+      });
+      doc.text(`${diachi}`, toadoXInfo + 16, toadoYInfo + 8, {
+        fontWeight: "bold",
+      });
+
+      var noidungText = "";
+
+      if (
+        data.maloaihinh == "AR" ||
+        data.maloaihinh == "BI" ||
+        data.maloaihinh == "WI"
+      ) {
+        noidungText = `Tiền đóng BHYT, phương thức đóng ${data.soThang} tháng, từ ngày ${data.tuNgay} đến ngày ${data.denNgay}`;
+      } else {
+        if (data.maphuongan !== "DB") {
+          noidungText = `Tiền đóng BHXH Tự nguyện, phương thức đóng ${data.soThang} tháng, từ ngày ${data.tuThang} đến ngày ${data.denThang}`;
+        } else {
+          noidungText = `BHXH Tự nguyện, ${data.tenphuongthucdong}, ${data.sothang} tháng, từ tháng ${data.tuThang}`;
+        }
+      }
+      doc.text(`Nội dung: `, toadoXInfo, toadoYInfo + 16, {
+        fontWeight: "bold",
+      });
+      doc.text(`${noidungText}`, toadoXInfo + 20, toadoYInfo + 16, {
+        fontWeight: "bold",
+      });
+
+      const formattedMoney = Number(data.soTien).toLocaleString("vi-VN");
+      // console.log(formattedMoney);
+
+      doc.text(`Số tiền thu: `, toadoXInfo, toadoYInfo + 24, {
+        fontWeight: "bold",
+      });
+      doc.text(`${formattedMoney}`, toadoXInfo + 24, toadoYInfo + 24, {
+        fontWeight: "bold",
+      });
+
+      doc.text(`(Loại tiền): VNĐ `, toadoXInfo + 100, toadoYInfo + 24, {
+        fontWeight: "bold",
+      });
+
+      let tienbangchuText = num2words(data.soTien);
+      let tienHoa = this.capitalizeFirstLetter(tienbangchuText);
+      tienHoa += " đồng./.";
+
+      doc.text(`(Viết bằng chữ: ${tienHoa}) `, toadoXInfo, toadoYInfo + 32, {
+        fontWeight: "bold",
+      });
+
+      doc.addFont(
+        "OpenSans-ExtraBold-normal.ttf",
+        "OpenSans-ExtraBold-normal",
+        "bold"
+      );
+      doc.setFont("OpenSans-ExtraBold-normal", "bold");
+      doc.setFontSize(13);
+      doc.setTextColor("#04368c");
+      doc.text(`NGƯỜI NỘP TIỀN`, toadoXInfo + 20, toadoYInfo + 43, {
+        fontWeight: "bold",
+      });
+
+      doc.text(`NGƯỜI THU TIỀN`, toadoXInfo + 120, toadoYInfo + 43, {
+        fontWeight: "bold",
+      });
+
+      doc.addFont(
+        "OpenSans-ExtraBold-normal.ttf",
+        "OpenSans-ExtraBold-normal",
+        "bold"
+      );
+      doc.setFont("OpenSans-ExtraBold-normal", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor("#04368c");
+      doc.text(`${data.hoTen}`, toadoXInfo + 40, toadoYInfo + 75, {
+        fontWeight: "bold",
+        align: "center",
+      });
+
+      // doc.setFontSize(8);
+      // doc.setTextColor("#dc3545");
+      // doc.text(
+      //   `Đã được ký bởi: ${company.companyName}`,
+      //   toadoXInfo + 106,
+      //   toadoYInfo + 53,
+      //   {
+      //     fontWeight: "bold",
+      //   }
+      // );
+      // doc.text(
+      //   `Ngày ký: ${ngayBienLai}`,
+      //   toadoXInfo + 124,
+      //   toadoYInfo + 58,
+      //   {
+      //     fontWeight: "bold",
+      //   }
+      // );
+
+      doc.addFont(
+        "OpenSans-ExtraBold-normal.ttf",
+        "OpenSans-ExtraBold-normal",
+        "bold"
+      );
+      doc.setFont("OpenSans-ExtraBold-normal", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor("#04368c");
+
+      // Tâm mong muốn theo trục X
+      const centerX = toadoXInfo + 128;
+      doc.text(`${data.nguoithutien}`, centerX + 11, toadoYInfo + 75, {
+        align: "center",
+      });
+
+      doc.addFont(
+        "OpenSans_SemiCondensed-Italic-normal.ttf",
+        "OpenSans_SemiCondensed-Italic-normal",
+        "italic"
+      );
+      doc.setFont("OpenSans_SemiCondensed-Italic-normal", "italic");
+      doc.setFontSize(8);
+      doc.setTextColor("#04368c");
+      doc.text(
+        `Vui lòng tra cứu biên lai điện tử tại: `,
+        toadoXInfo + 54,
+        toadoYInfo + 82,
+        {
+          fontWeight: "bold",
+        }
+      );
+
+      doc.setFontSize(8);
+      doc.setTextColor("#dc143c");
+      doc.text(
+        `${company.urlBienlaidientu}`,
+        toadoXInfo + 92,
+        toadoYInfo + 82,
+        {
+          fontWeight: "bold",
+        }
+      );
+
+      const tenbienlai = data.urlNameInvoice;
+
+      const pdfBlob = doc.output("blob");
+
+      const formData = new FormData();
+      formData.append("pdf", pdfBlob, `${tenbienlai}.pdf`);
+
+      // Gửi về backend
+      await this.$axios.post("/api/kekhai/upload-bienlai-huy", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+    },
+
+    capitalizeFirstLetter(str) {
+      if (!str) return "";
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    },
   },
 };
 </script>
@@ -1383,16 +1815,16 @@ export default {
   cursor: not-allowed;
 }
 
-  /* Mặc định cho thiết bị di động */
-  .modal-card-predata {
-    max-height: 80vh; /* Chiều cao tối đa là 80% màn hình */
-    overflow-y: auto; /* Cho phép cuộn nếu nội dung quá dài */
-  }
+/* Mặc định cho thiết bị di động */
+.modal-card-predata {
+  max-height: 80vh; /* Chiều cao tối đa là 80% màn hình */
+  overflow-y: auto; /* Cho phép cuộn nếu nội dung quá dài */
+}
 
-  /* Cho thiết bị máy tính */
-  @media (min-width: 1024px) {
-    .modal-card-predata {
-      max-height: 90vh; /* Tăng chiều cao tối đa cho máy tính */
-    }
+/* Cho thiết bị máy tính */
+@media (min-width: 1024px) {
+  .modal-card-predata {
+    max-height: 90vh; /* Tăng chiều cao tối đa cho máy tính */
   }
+}
 </style>
