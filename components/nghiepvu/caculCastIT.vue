@@ -3206,6 +3206,27 @@ export default {
         const tienTrungUongHoTro = castSubTwhotro * (tyleHotroTWMucCu / 100);
         const tongTienHoTro = tienTrungUongHoTro + tienDiaPhuongHoTro
 
+        this.items[index].tylensnnht = tyleHotroTWMucCu;
+        this.items[index].tiennsnnht = tienTrungUongHoTro;
+        this.items[index].tylensdp = this.tylediaphuonghotroIs;
+        this.items[index].tiennsdp = tienDiaPhuongHoTro;
+        console.log(
+          "Tiền ngân sách nhà nước hỗ trợ: ",
+          this.items[index].tiennsnnht
+        );
+        console.log(
+          "Tỷ lệ ngân sách nhà nước hỗ trợ: ",
+          this.items[index].tylensnnht
+        );
+        console.log(
+          "Tỷ lệ ngân sách địa phương hỗ trợ: ",
+          this.items[index].tylensdp
+        );
+        console.log(
+          "Tiền ngân sách địa phương hỗ trợ: ",
+          this.items[index].tiennsdp
+        );
+
         const hotro_truoc2026 = tongTienHoTro;
         const hotro_sau2026 = tienTrungUongHoTro;
 
@@ -3217,10 +3238,31 @@ export default {
         tienCanNap = tienCoHoTro + tienKoHoTro;
         console.log("Tiền cần nạp:", Math.round(tienCanNap));     
       }else{
-        console.log('TỔNG MỨC HỖ TRỢ CHỈ CÓ NSNN MỨC CŨ CHO TOÀN BỘ QUÁ TRÌNH ĐÓNG')
+        console.log('TỔNG MỨC HỖ TRỢ CHỈ CÓ NSNN MỨC MỚI CHO TOÀN BỘ QUÁ TRÌNH ĐÓNG')
         // Tiền trung ương hỗ trợ (danh mục hỗ trợ cũ)
         const tienTrungUongHoTro = castSubTwhotro * (tyleHotroTW / 100);
         const tongTienHoTro = tienTrungUongHoTro + tienDiaPhuongHoTro
+
+        this.items[index].tylensnnht = tyleHotroTW;
+        this.items[index].tiennsnnht = tienTrungUongHoTro;
+        this.items[index].tylensdp = this.tylediaphuonghotroIs;
+        this.items[index].tiennsdp = tienDiaPhuongHoTro;
+        console.log(
+          "Tiền ngân sách nhà nước hỗ trợ: ",
+          this.items[index].tiennsnnht
+        );
+        console.log(
+          "Tỷ lệ ngân sách nhà nước hỗ trợ: ",
+          this.items[index].tylensnnht
+        );
+        console.log(
+          "Tỷ lệ ngân sách địa phương hỗ trợ: ",
+          this.items[index].tylensdp
+        );
+        console.log(
+          "Tiền ngân sách địa phương hỗ trợ: ",
+          this.items[index].tiennsdp
+        );
 
         const hotro_truoc2026 = tongTienHoTro;
         const hotro_sau2026 = tienTrungUongHoTro;
