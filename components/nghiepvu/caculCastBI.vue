@@ -291,7 +291,7 @@
                   </select>
                 </div> -->
                 <v-select
-                  v-model="item.maxaphuong"
+                  v-model="item.maxaphuong_new"
                   :options="item.info_xaphuong"
                   label="ward_name"
                   :reduce="b => b.ward_code"
