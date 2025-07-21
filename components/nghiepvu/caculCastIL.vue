@@ -2035,31 +2035,18 @@ export default {
           this.items[index].cccd = data.cccd;
           (this.items[index].gioitinh = data.gioitinh === "1" ? "Nam" : "Nữ"),
             (this.items[index].dienthoai = data.sodienthoai);
-          this.items[index].hanthecu = data.tuthang;
 
-          const str = data.tuthang;
-          const date = new Date(str);
-          const thang = String(date.getMonth() + 1).padStart(2, '0');
-          const nam = date.getFullYear();
-          const thangdenhan = `${thang}/${nam}`;
-          // console.log(thangdenhan);
-          const [thangStr, namStr] = thangdenhan.split('/');
+          if (data.tuthang) {
+            this.items[index].hanthecu = data.tuthang | "";
 
-          let thangDenthang = parseInt(thangStr);
-          let namDenthang = parseInt(namStr);
-
-          // Tăng tháng
-          thangDenthang += 1;
-          if (thangDenthang > 12) {
-            thangDenthang = 1;
-            namDenthang += 1;
+            const str = data.tuthang;
+            const date = new Date(str);
+            const thang = String(date.getMonth() + 1).padStart(2, "0");
+            const nam = date.getFullYear();
+            const tuthang = `${thang}/${nam}`;
+            this.items[index].tuthang = tuthang;
+            this.items[index].muctiendong = data.muctiendong;
           }
-
-          // Định dạng lại chuỗi MM/yyyy
-          const denThang = `${String(thangDenthang).padStart(2, '0')}/${namDenthang}`;
-          // console.log(denThang); // ví dụ: "09/2025" hoặc "01/2026"
-          this.items[index].tuthang = denThang;
-          this.items[index].muctiendong = data.muctiendong;
           
 
           // Thông tin hành chính

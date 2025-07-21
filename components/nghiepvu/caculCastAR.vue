@@ -2189,6 +2189,7 @@ export default {
 
                 // console.log(rsIdtity.data);
                 this.dulieuTravedeinbienlai = rsIdtity.data;
+                
                 this.isActive_xacnhan = true;
               }
             } catch (error) {
@@ -2887,7 +2888,7 @@ export default {
           this.isLoading = true;
           // thông tin biên lai
           const currentYear = new Date().getFullYear();
-
+          // console.log(this.dulieuTravedeinbienlai)
           // lấy tên biên lai để lưu
           for (let i = 0; i < this.dulieuTravedeinbienlai.length; i++) {
             const item = this.dulieuTravedeinbienlai[i];
