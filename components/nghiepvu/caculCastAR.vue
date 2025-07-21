@@ -1096,6 +1096,11 @@ export default {
             this.items[index].maxaphuong_new = res_xa.data[0].ward_code;
           }
 
+          const response = await this.$axios.get(
+            `/api/danhmucs/hanhchinh2cap-xa-with-ma-tinh?province_code=${data.tinh.matinh}`
+          );
+          this.items[index].info_xaphuong = response.data;
+
           // console.log(data.hanthecu);
           // 31/12/2025
           
