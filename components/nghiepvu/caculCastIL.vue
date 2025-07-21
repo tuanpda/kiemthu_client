@@ -2045,6 +2045,8 @@ export default {
             const nam = date.getFullYear();
             const tuthang = `${thang}/${nam}`;
             this.items[index].tuthang = tuthang;
+            console.log(tuthang)
+            console.log(this.items[index].tuthang)
             this.items[index].muctiendong = data.muctiendong;
           }
           
