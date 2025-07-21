@@ -1085,7 +1085,7 @@ export default {
           this.items[index].tenxaphuong = data.xa.tenxa;
           this.items[index].mabenhvien = `42${data.benhvien.mabenhvien}`;
           this.items[index].tenbenhvien = data.benhvien.tenbenhvien;
-          this.items[index].tothon = data.diachidangsinhsong
+          this.items[index].tothon = data.diachidangsinhsong;
 
           //  TÌM VÀ GÁN LẠI TÊN XÃ MỚI 2 CẤP
           const res_xa = await this.$axios.get(
@@ -1094,6 +1094,27 @@ export default {
           if (res_xa.data.length > 0) {
             this.items[index].tenxaphuong_new = res_xa.data[0].ward_name;
             this.items[index].maxaphuong_new = res_xa.data[0].ward_code;
+          }
+
+          // console.log(data.hanthecu);
+          // 31/12/2025
+          
+          const hanTheCuStr = data.hanthecu; // từ data.hanthecu hoặc hardcode để test
+          const parts = hanTheCuStr.split('/');
+          const hanTheCu = new Date(parts[2], parts[1] - 1, parts[0]); // yyyy, MM-1, dd
+
+          const today = new Date();
+          const millisecondsPerDay = 1000 * 60 * 60 * 24;
+          const diffDays = Math.floor((hanTheCu - today) / millisecondsPerDay);
+
+          // console.log(diffDays);
+
+          if (diffDays >= 30) {
+            Swal.fire({
+              icon: "info",
+              title: "Thẻ vẫn còn hạn",
+              text: `Thẻ hiện còn hiệu lực thêm ${diffDays} ngày. Cân nhắc trước khi gia hạn!`
+            });
           }
         }
       } catch (err) {

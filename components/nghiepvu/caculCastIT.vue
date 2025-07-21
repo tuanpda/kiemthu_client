@@ -310,17 +310,21 @@
                   </select>
                 </div> -->
                 <v-select
-                  v-model="item.maxaphuong"
+                  v-model="item.maxaphuong_new"
                   :options="item.info_xaphuong"
                   label="ward_name"
-                  :reduce="b => b.ward_code"
-                  :get-option-label="val => {
-                    if (typeof val === 'string') {
-                      const found = item.info_xaphuong.find(x => x.ward_code === val);
-                      return found ? found.ward_name : val;
+                  :reduce="(b) => b.ward_code"
+                  :get-option-label="
+                    (val) => {
+                      if (typeof val === 'string') {
+                        const found = item.info_xaphuong.find(
+                          (x) => x.ward_code === val
+                        );
+                        return found ? found.ward_name : val;
+                      }
+                      return val.ward_name;
                     }
-                    return val.ward_name;
-                  }"
+                  "
                   @input="xaphuongChange($event, index)"
                   :append-to-body="true"
                 />
@@ -411,9 +415,12 @@
 
     <!-- Biểu tượng loading -->
     <div v-if="isLoading" class="loading-overlay">
-      <!-- Biểu tượng loading -->
-      <div class="loading-spinner"></div>
-      <span>waitting some minute ...</span>
+      <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <span class="loading-text"
+          >Đang lấy thông tin dữ liệu, xin chờ trong giây lát ...</span
+        >
+      </div>
     </div>
 
     <!-- modal ke khai thành công-->
@@ -1338,8 +1345,8 @@
     <div class="">
       <div :class="{ 'is-active': isActive_xacnhan }" class="modal">
         <div class="modal-background"></div>
-          <div class="modal-content modal-card-predata">
-            <section class="modal-card-body box">
+        <div class="modal-content modal-card-predata">
+          <section class="modal-card-body box">
             <div>
               <div>
                 <span style="font-weight: 800; font-size: 15px; color: red"
@@ -1599,14 +1606,14 @@ export default {
 
       // lam chinh quyen 2 cap 13/7/2025
       cq2cap_Tinh: [],
-      cq2cap_Huyen : [],
+      cq2cap_Huyen: [],
     };
   },
 
   mounted() {
     // this.tinhDenThang("10/2024", "12");
     this.isRoleSent = this.user.res_sent;
-    this.loadTinh()
+    this.loadTinh();
   },
 
   async created() {
@@ -1702,16 +1709,13 @@ export default {
   },
 
   methods: {
-        // HANH CHINH 2 CAP
-        async loadTinh(){
-      const res = await this.$axios.get(
-        `/api/danhmucs/hanhchinh2cap-tinh`
-      );
+    // HANH CHINH 2 CAP
+    async loadTinh() {
+      const res = await this.$axios.get(`/api/danhmucs/hanhchinh2cap-tinh`);
       // console.log(res.data);
-      if(res.data.length > 0){
-        this.cq2cap_Tinh=res.data
+      if (res.data.length > 0) {
+        this.cq2cap_Tinh = res.data;
       }
-          
     },
 
     async checkItemData(item, index) {
@@ -1991,303 +1995,401 @@ export default {
     },
 
     async findNguoihuong(masobhxh, index) {
-      if (masobhxh !== "") {
-        const isDuplicate = this.items.some(
-          (item, idx) => idx !== index && item.masobhxh === masobhxh
-        );
+      if (!masobhxh) return;
 
-        if (isDuplicate) {
-          Swal.fire({
-            text: `Mã số ${masobhxh} vừa được đăng ký trong loại hình này xong, vui lòng kiểm tra lại!`,
-            icon: "error",
-          });
+      const isDuplicate = this.items.some(
+        (item, idx) => idx !== index && item.masobhxh === masobhxh
+      );
+      if (isDuplicate) {
+        Swal.fire({
+          text: `Mã số ${masobhxh} vừa được đăng ký trong loại hình này xong, vui lòng kiểm tra lại!`,
+          icon: "error",
+        });
+        this.items[index].masobhxh = "";
+        return;
+      }
 
-          // Xoá mã số BHXH vừa nhập
-          this.items[index].masobhxh = "";
-          return;
-        }
+      try {
+        const dataFind = {
+          masobhxh: masobhxh,
+        };
+        this.isLoading = true;
+        const res = await this.$axios.post(`/api/kekhai/getinfo-bhxh`, dataFind);
+        // console.log(res.data.data);
+        const data = res.data.data;
+        if (data) {
+          // Thông tin cá nhân và bảo hiểm
+          this.items[index].hoten = data.hoten;
+          this.items[index].ngaysinh = data.ngaysinh
+            ?.slice(0, 10)
+            ?.split("-")
+            .reverse()
+            .join("/");
+          this.items[index].cccd = data.cccd;
+          (this.items[index].gioitinh = data.gioitinh === "1" ? "Nam" : "Nữ"),
+            (this.items[index].dienthoai = data.sodienthoai);
+          this.items[index].hanthecu = data.tuthang;
 
-        try {
-          const res = await this.$axios.get(
-            `/api/nguoihuong/find-nguoihuong-masobhxh-theodulieutunguyen?soBhxh=${masobhxh}`
-          );
-          // console.log(res.data.data[0]);
+          const str = data.tuthang;
+          const date = new Date(str);
+          const thang = String(date.getMonth() + 1).padStart(2, '0');
+          const nam = date.getFullYear();
+          const thangdenhan = `${thang}/${nam}`;
+          // console.log(thangdenhan);
+          const [thangStr, namStr] = thangdenhan.split('/');
 
-          this.isLoading = true;
-          // console.log(res.data);
-          if (res.data.data.length > 0) {
-            this.isLoading = false;
+          let thangDenthang = parseInt(thangStr);
+          let namDenthang = parseInt(namStr);
 
-            const data = res.data.data[0];
-
-            // Tìm căn cước công dân trong dữ liệu HGD
-            const resHGD = await this.$axios.get(
-              `/api/nguoihuong/tim-kiem-thong-tin-hgd?soBhxh=${masobhxh}&SO_DDCN_CCCD_BCA=''`
-            );
-            let soCmnd_hgd = "";
-            let dataHgd;
-            // console.log(resHGD.data.canhan.SO_DDCN_CCCD_BCA);
-            if (resHGD.data.canhan !== null) {
-              soCmnd_hgd = resHGD.data.canhan.SO_DDCN_CCCD_BCA;
-              // console.log(resHGD);
-              dataHgd = resHGD.data.canhan;
-            }
-
-            try {
-              this.items[index].hoten = data.hoTen;
-              this.items[index].ngaysinh = data.ngaySinh;
-              // console.log(typeof data.gioiTinh);
-              this.items[index].cccd = soCmnd_hgd;
-              this.items[index].gioitinh = data.gioiTinh;
-              this.items[index].dienthoai = data.soDienThoai;
-
-              // gán hạn thẻ cũ lên form
-              this.items[index].hanthecu = data.denThang;
-              // this.items[index].tuthang = data.denThang;
-              const [thangStr, namStr] = data.denThang.split("/"); // "04/2025"
-              let thang = parseInt(thangStr);
-              let nam = parseInt(namStr);
-
-              // Cộng thêm 1 tháng
-              thang += 1;
-
-              if (thang > 12) {
-                thang = 1;
-                nam += 1;
-              }
-
-              // Định dạng lại chuỗi theo MM/YYYY
-              const hantheMoi = `${thang.toString().padStart(2, "0")}/${nam}`;
-              this.items[index].tuthang = hantheMoi; // gán hạn thẻ mới vào ô từ tháng
-              // console.log(
-              //   "🎯 Hạn thẻ mới (tuthang):",
-              //   this.items[index].tuthang
-              // );
-
-              this.items[index].muctiendong = data.mucDong;
-              // this.items[index].maphuongthucdong = data.phuongthuc;
-              // set phương thức đóng
-              // ở đây có thể là 1,3,6,12, VS
-
-              // this.items[index].tungay = formatDate(tuNgay);
-
-              const filename = dataHgd.tenFile;
-              const parts = filename.split("_");
-
-              const maTinh = parts[4].replace("TTT", "");
-              const maHuyen = parts[5].replace("HH", "");
-              const maXa = parts[6];
-
-              // console.log("Mã tỉnh:", maTinh); // "42"
-              // console.log("Mã huyện:", maHuyen); // "449"
-              // console.log("Mã xã:", maXa); // "18754"
-
-              // CODE MOI. DIA PHUONG 2 CAP. LAY MA TINH TU DL THE
-                // đi tìm tên tỉnh
-                const res_tinh = await this.$axios.get(
-                  `/api/danhmucs/hanhchinh2cap-find-tentinh?province_code=${maTinh}`
-                );
-                // console.log(res_tinh.data);
-                if (res_tinh.data.length > 0) {
-                  this.items[index].tentinh = `Tỉnh ${res_tinh.data[0].name}`;
-                  // console.log(this.items[index].tentinh);
-                }
-
-                //  TÌM VÀ GÁN LẠI TÊN XÃ MỚI 2 CẤP              
-                const res_xa = await this.$axios.get(
-                  `/api/danhmucs/hanhchinh2cap-find-tenxa?old_ward_code=${maXa}`
-                );
-                // console.log(res_xa.data)
-                if (res_xa.data.length > 0) {
-                  // this.items[index].tenxaphuong = res_xa.data[0].ward_name;
-                // this.items[index].maxaphuong = res_xa.data[0].ward_code
-                // console.log(this.items[index].tenxaphuong);
-                // console.log(this.items[index].maxaphuong);
-                // 15 tháng 7 2025. HIỆN TẠI VNPT CHƯA CẬP NHẬT DANH MỤC CHÍNH QUYỀN 2 CẤP.
-                // TẠM THỜI ĐƯA VỀ 3 CẤP NHƯ CŨ.
-                this.items[index].tenxaphuong = res_xa.data[0].old_ward_name;
-                this.items[index].maxaphuong = res_xa.data[0].old_ward_code
-                }
-
-              // GÁN THÔNG TIN HUYỆN CŨ. data.maXaLh là mã xã cũ
-                // tìm thông tin quận huyện cũ theo mã xã cũ
-                // select * from dm_xaphuong where matinh=42 and maxaphuong=18070
-                const res_huyencu = await this.$axios.get(
-                  `/api/danhmucs/thongtinquanhuyencu?maxaphuong=${maXa}`
-                );
-                // console.log(res_huyencu.data)
-                this.items[index].maquanhuyen=res_huyencu.data.maquanhuyen
-                this.items[index].tenquanhuyen=res_huyencu.data.tenquanhuyen
-
-              // this.items[index].matinh = maTinh;
-              // // đi tìm tên tỉnh
-              // const res_tinh = await this.$axios.get(
-              //   `/api/nguoihuong/find-tentinh?matinh=${maTinh}`
-              // );
-              // if (res_tinh.data.length > 0) {
-              //   this.items[index].tentinh = res_tinh.data[0].tentinh;
-              //   // console.log(this.items[index].tentinh);
-              // }
-              // this.items[index].maquanhuyen = maHuyen;
-              // // đi tìm tên quận huyện
-              // const res_huyen = await this.$axios.get(
-              //   `/api/nguoihuong/find-tenhuyen?matinh=${maTinh}&maquanhuyen=${maHuyen}`
-              // );
-              // if (res_huyen.data.length > 0) {
-              //   this.items[index].tenquanhuyen = res_huyen.data[0].tenquanhuyen;
-              //   // console.log(this.items[index].tenquanhuyen);
-              // }
-              // this.items[index].maxaphuong = maXa;
-              // // đi tìm tên xã
-              // const res_xa = await this.$axios.get(
-              //   `/api/nguoihuong/find-tenxa?matinh=${maTinh}&maquanhuyen=${maHuyen}&maxaphuong=${maXa}`
-              // );
-              // // console.log(res_xa);
-
-              // if (res_xa.data.length > 0) {
-              //   this.items[index].tenxaphuong = res_xa.data[0].tenxaphuong;
-              //   // console.log(this.items[index].tenxaphuong);
-              // }
-
-              this.items[index].tothon = dataHgd.diaChi;
-            } catch (error) {
-              console.log(error.message);
-            }
-          } else {
-            // 2. Trường hợp không có trong dữ liệu thẻ thì đi tìm trong DL HGD
-            const resHGD = await this.$axios.get(
-              `/api/nguoihuong/tim-kiem-thong-tin-hgd?soBhxh=${masobhxh}&SO_DDCN_CCCD_BCA=''`
-            );
-            // console.log(resHGD);
-            if (resHGD.data.canhan !== null) {
-              // console.log(resHGD);
-              this.isLoading = false;
-              const data = resHGD.data.canhan;
-              try {
-                this.items[index].hoten = data.hoTen;
-                this.items[index].ngaysinh = data.ngaySinh;
-                // console.log(typeof data.gioiTinh);
-                this.items[index].cccd = data.SO_DDCN_CCCD_BCA;
-                this.items[index].gioitinh = data.gioiTinh;
-                this.items[index].dienthoai = data.soDienThoai;
-
-                const today = new Date();
-                const thang = String(today.getMonth() + 1).padStart(2, "0"); // tháng bắt đầu từ 0
-                const nam = today.getFullYear();
-
-                const thangNam = `${thang}/${nam}`;
-                this.items[index].tuthang = thangNam;
-
-                const filename = data.tenFile;
-                const parts = filename.split("_");
-
-                const maTinh = parts[4].replace("TTT", "");
-                const maHuyen = parts[5].replace("HH", "");
-                const maXa = parts[6];
-
-                // console.log("Mã tỉnh:", maTinh); // "42"
-                // console.log("Mã huyện:", maHuyen); // "449"
-                // console.log("Mã xã:", maXa); // "18754"
-
-                // CODE MOI. DIA PHUONG 2 CAP. LAY MA TINH TU DL THE
-                // đi tìm tên tỉnh
-                const res_tinh = await this.$axios.get(
-                  `/api/danhmucs/hanhchinh2cap-find-tentinh?province_code=${maTinh}`
-                );
-                // console.log(res_tinh.data);
-                if (res_tinh.data.length > 0) {
-                  this.items[index].tentinh = `Tỉnh ${res_tinh.data[0].name}`;
-                  // console.log(this.items[index].tentinh);
-                }
-
-                //  TÌM VÀ GÁN LẠI TÊN XÃ MỚI 2 CẤP              
-                const res_xa = await this.$axios.get(
-                  `/api/danhmucs/hanhchinh2cap-find-tenxa?old_ward_code=${maXa}`
-                );
-                // console.log(res_xa.data)
-                if (res_xa.data.length > 0) {
-                  // this.items[index].tenxaphuong = res_xa.data[0].ward_name;
-                // this.items[index].maxaphuong = res_xa.data[0].ward_code
-                // console.log(this.items[index].tenxaphuong);
-                // console.log(this.items[index].maxaphuong);
-                // 15 tháng 7 2025. HIỆN TẠI VNPT CHƯA CẬP NHẬT DANH MỤC CHÍNH QUYỀN 2 CẤP.
-                // TẠM THỜI ĐƯA VỀ 3 CẤP NHƯ CŨ.
-                this.items[index].tenxaphuong = res_xa.data[0].old_ward_name;
-                this.items[index].maxaphuong = res_xa.data[0].old_ward_code
-                }
-
-                // GÁN THÔNG TIN HUYỆN CŨ. data.maXaLh là mã xã cũ
-                // tìm thông tin quận huyện cũ theo mã xã cũ
-                // select * from dm_xaphuong where matinh=42 and maxaphuong=18070
-                const res_huyencu = await this.$axios.get(
-                  `/api/danhmucs/thongtinquanhuyencu?maxaphuong=${maXa}`
-                );
-                // console.log(res_huyencu.data)
-                this.items[index].maquanhuyen=res_huyencu.data.maquanhuyen
-                this.items[index].tenquanhuyen=res_huyencu.data.tenquanhuyen
-
-                // this.items[index].matinh = maTinh;
-                // // đi tìm tên tỉnh
-                // const res_tinh = await this.$axios.get(
-                //   `/api/nguoihuong/find-tentinh?matinh=${maTinh}`
-                // );
-                // if (res_tinh.data.length > 0) {
-                //   this.items[index].tentinh = res_tinh.data[0].tentinh;
-                //   // console.log(this.items[index].tentinh);
-                // }
-                // this.items[index].maquanhuyen = maHuyen;
-                // // đi tìm tên quận huyện
-                // const res_huyen = await this.$axios.get(
-                //   `/api/nguoihuong/find-tenhuyen?matinh=${maTinh}&maquanhuyen=${maHuyen}`
-                // );
-                // if (res_huyen.data.length > 0) {
-                //   this.items[index].tenquanhuyen =
-                //     res_huyen.data[0].tenquanhuyen;
-                //   // console.log(this.items[index].tenquanhuyen);
-                // }
-                // this.items[index].maxaphuong = maXa;
-                // // đi tìm tên xã
-                // const res_xa = await this.$axios.get(
-                //   `/api/nguoihuong/find-tenxa?matinh=${maTinh}&maquanhuyen=${maHuyen}&maxaphuong=${maXa}`
-                // );
-                // // console.log(res_xa);
-
-                // if (res_xa.data.length > 0) {
-                //   this.items[index].tenxaphuong = res_xa.data[0].tenxaphuong;
-                //   // console.log(this.items[index].tenxaphuong);
-                // }
-
-                this.items[index].tothon = data.diaChi;
-                this.items[index].benhvientinh = maTinh;
-              } catch (error) {
-                console.log(error.message);
-              }
-              Swal.fire({
-                text: "Không có thông tin cấp thẻ hiện tại của BHXH, đây chỉ là thông tin thẻ hiện đang có trong Hộ gia đình (Hoặc có thể không có). Đề nghị kiểm tra kỹ hồ sơ rồi mới kê khai nhé!",
-                // text: "Đã gửi thông tin hồ sơ lên cổng BHXH VN!",
-                icon: "success",
-              });
-            } else {
-              Swal.fire({
-                text: "Người này hiện không có trong dữ liệu của phần mềm chúng tôi. Bạn hãy tự nhập mới toàn bộ. Từ tháng sẽ là tháng hiện tại kể từ tháng mua thẻ.",
-                icon: "success",
-              });
-
-              const today = new Date();
-              const thang = String(today.getMonth() + 1).padStart(2, "0"); // tháng bắt đầu từ 0
-              const nam = today.getFullYear();
-
-              const thangNam = `${thang}/${nam}`;
-              this.items[index].tuthang = thangNam;
-            }
+          // Tăng tháng
+          thangDenthang += 1;
+          if (thangDenthang > 12) {
+            thangDenthang = 1;
+            namDenthang += 1;
           }
-          this.isLoading = false;
-        } catch (error) {
-          console.log(error);
-          this.isLoading = false;
+
+          // Định dạng lại chuỗi MM/yyyy
+          const denThang = `${String(thangDenthang).padStart(2, '0')}/${namDenthang}`;
+          // console.log(denThang); // ví dụ: "09/2025" hoặc "01/2026"
+          this.items[index].tuthang = denThang;
+          this.items[index].muctiendong = data.muctiendong;
+          
+
+          // Thông tin hành chính
+          this.items[index].matinh = data.tinh.matinh;
+          this.items[index].tentinh = data.tinh.tentinh;
+          this.items[index].maquanhuyen = data.quanhuyen.mahuyen;
+          this.items[index].tenquanhuyen = data.quanhuyen.tenhuyen;
+          this.items[index].maxaphuong = data.xa.maxa;
+          this.items[index].tenxaphuong = data.xa.tenxa;
+          this.items[index].tenxaphuong = data.xa.tenxa;
+          this.items[index].tothon = data.diachidangsinhsong;
+
+          //  TÌM VÀ GÁN LẠI TÊN XÃ MỚI 2 CẤP
+          const res_xa = await this.$axios.get(
+            `/api/danhmucs/hanhchinh2cap-find-tenxa?old_ward_code=${data.xa.maxa}`
+          );
+          if (res_xa.data.length > 0) {
+            this.items[index].tenxaphuong_new = res_xa.data[0].ward_name;
+            this.items[index].maxaphuong_new = res_xa.data[0].ward_code;
+          }
+
+          // load xã theo tỉnh của mã số bhxh
+          const response = await this.$axios.get(
+            `/api/danhmucs/hanhchinh2cap-xa-with-ma-tinh?province_code=${data.tinh.matinh}`
+          );
+          this.items[index].info_xaphuong = response.data;
+
         }
+      } catch (err) {
+        console.error(err);
+        Swal.fire({
+          text: "Không tìm được thông tin người hưởng!",
+          icon: "error",
+        });
+      } finally {
+        this.isLoading = false;
       }
     },
+
+    // async findNguoihuong(masobhxh, index) {
+    //   if (masobhxh !== "") {
+    //     const isDuplicate = this.items.some(
+    //       (item, idx) => idx !== index && item.masobhxh === masobhxh
+    //     );
+
+    //     if (isDuplicate) {
+    //       Swal.fire({
+    //         text: `Mã số ${masobhxh} vừa được đăng ký trong loại hình này xong, vui lòng kiểm tra lại!`,
+    //         icon: "error",
+    //       });
+
+    //       // Xoá mã số BHXH vừa nhập
+    //       this.items[index].masobhxh = "";
+    //       return;
+    //     }
+
+    //     try {
+    //       const res = await this.$axios.get(
+    //         `/api/nguoihuong/find-nguoihuong-masobhxh-theodulieutunguyen?soBhxh=${masobhxh}`
+    //       );
+    //       // console.log(res.data.data[0]);
+
+    //       this.isLoading = true;
+    //       // console.log(res.data);
+    //       if (res.data.data.length > 0) {
+    //         this.isLoading = false;
+
+    //         const data = res.data.data[0];
+
+    //         // Tìm căn cước công dân trong dữ liệu HGD
+    //         const resHGD = await this.$axios.get(
+    //           `/api/nguoihuong/tim-kiem-thong-tin-hgd?soBhxh=${masobhxh}&SO_DDCN_CCCD_BCA=''`
+    //         );
+    //         let soCmnd_hgd = "";
+    //         let dataHgd;
+    //         // console.log(resHGD.data.canhan.SO_DDCN_CCCD_BCA);
+    //         if (resHGD.data.canhan !== null) {
+    //           soCmnd_hgd = resHGD.data.canhan.SO_DDCN_CCCD_BCA;
+    //           // console.log(resHGD);
+    //           dataHgd = resHGD.data.canhan;
+    //         }
+
+    //         try {
+    //           this.items[index].hoten = data.hoTen;
+    //           this.items[index].ngaysinh = data.ngaySinh;
+    //           // console.log(typeof data.gioiTinh);
+    //           this.items[index].cccd = soCmnd_hgd;
+    //           this.items[index].gioitinh = data.gioiTinh;
+    //           this.items[index].dienthoai = data.soDienThoai;
+
+    //           // gán hạn thẻ cũ lên form
+    //           this.items[index].hanthecu = data.denThang;
+    //           // this.items[index].tuthang = data.denThang;
+    //           const [thangStr, namStr] = data.denThang.split("/"); // "04/2025"
+    //           let thang = parseInt(thangStr);
+    //           let nam = parseInt(namStr);
+
+    //           // Cộng thêm 1 tháng
+    //           thang += 1;
+
+    //           if (thang > 12) {
+    //             thang = 1;
+    //             nam += 1;
+    //           }
+
+    //           // Định dạng lại chuỗi theo MM/YYYY
+    //           const hantheMoi = `${thang.toString().padStart(2, "0")}/${nam}`;
+    //           this.items[index].tuthang = hantheMoi; // gán hạn thẻ mới vào ô từ tháng
+    //           // console.log(
+    //           //   "🎯 Hạn thẻ mới (tuthang):",
+    //           //   this.items[index].tuthang
+    //           // );
+
+    //           this.items[index].muctiendong = data.mucDong;
+    //           // this.items[index].maphuongthucdong = data.phuongthuc;
+    //           // set phương thức đóng
+    //           // ở đây có thể là 1,3,6,12, VS
+
+    //           // this.items[index].tungay = formatDate(tuNgay);
+
+    //           const filename = dataHgd.tenFile;
+    //           const parts = filename.split("_");
+
+    //           const maTinh = parts[4].replace("TTT", "");
+    //           const maHuyen = parts[5].replace("HH", "");
+    //           const maXa = parts[6];
+
+    //           // console.log("Mã tỉnh:", maTinh); // "42"
+    //           // console.log("Mã huyện:", maHuyen); // "449"
+    //           // console.log("Mã xã:", maXa); // "18754"
+
+    //           // CODE MOI. DIA PHUONG 2 CAP. LAY MA TINH TU DL THE
+    //           // đi tìm tên tỉnh
+    //           const res_tinh = await this.$axios.get(
+    //             `/api/danhmucs/hanhchinh2cap-find-tentinh?province_code=${maTinh}`
+    //           );
+    //           // console.log(res_tinh.data);
+    //           if (res_tinh.data.length > 0) {
+    //             this.items[index].tentinh = `Tỉnh ${res_tinh.data[0].name}`;
+    //             // console.log(this.items[index].tentinh);
+    //           }
+
+    //           //  TÌM VÀ GÁN LẠI TÊN XÃ MỚI 2 CẤP
+    //           const res_xa = await this.$axios.get(
+    //             `/api/danhmucs/hanhchinh2cap-find-tenxa?old_ward_code=${maXa}`
+    //           );
+    //           // console.log(res_xa.data)
+    //           if (res_xa.data.length > 0) {
+    //             // this.items[index].tenxaphuong = res_xa.data[0].ward_name;
+    //             // this.items[index].maxaphuong = res_xa.data[0].ward_code
+    //             // console.log(this.items[index].tenxaphuong);
+    //             // console.log(this.items[index].maxaphuong);
+    //             // 15 tháng 7 2025. HIỆN TẠI VNPT CHƯA CẬP NHẬT DANH MỤC CHÍNH QUYỀN 2 CẤP.
+    //             // TẠM THỜI ĐƯA VỀ 3 CẤP NHƯ CŨ.
+    //             this.items[index].tenxaphuong = res_xa.data[0].old_ward_name;
+    //             this.items[index].maxaphuong = res_xa.data[0].old_ward_code;
+    //           }
+
+    //           // GÁN THÔNG TIN HUYỆN CŨ. data.maXaLh là mã xã cũ
+    //           // tìm thông tin quận huyện cũ theo mã xã cũ
+    //           // select * from dm_xaphuong where matinh=42 and maxaphuong=18070
+    //           const res_huyencu = await this.$axios.get(
+    //             `/api/danhmucs/thongtinquanhuyencu?maxaphuong=${maXa}`
+    //           );
+    //           // console.log(res_huyencu.data)
+    //           this.items[index].maquanhuyen = res_huyencu.data.maquanhuyen;
+    //           this.items[index].tenquanhuyen = res_huyencu.data.tenquanhuyen;
+
+    //           // this.items[index].matinh = maTinh;
+    //           // // đi tìm tên tỉnh
+    //           // const res_tinh = await this.$axios.get(
+    //           //   `/api/nguoihuong/find-tentinh?matinh=${maTinh}`
+    //           // );
+    //           // if (res_tinh.data.length > 0) {
+    //           //   this.items[index].tentinh = res_tinh.data[0].tentinh;
+    //           //   // console.log(this.items[index].tentinh);
+    //           // }
+    //           // this.items[index].maquanhuyen = maHuyen;
+    //           // // đi tìm tên quận huyện
+    //           // const res_huyen = await this.$axios.get(
+    //           //   `/api/nguoihuong/find-tenhuyen?matinh=${maTinh}&maquanhuyen=${maHuyen}`
+    //           // );
+    //           // if (res_huyen.data.length > 0) {
+    //           //   this.items[index].tenquanhuyen = res_huyen.data[0].tenquanhuyen;
+    //           //   // console.log(this.items[index].tenquanhuyen);
+    //           // }
+    //           // this.items[index].maxaphuong = maXa;
+    //           // // đi tìm tên xã
+    //           // const res_xa = await this.$axios.get(
+    //           //   `/api/nguoihuong/find-tenxa?matinh=${maTinh}&maquanhuyen=${maHuyen}&maxaphuong=${maXa}`
+    //           // );
+    //           // // console.log(res_xa);
+
+    //           // if (res_xa.data.length > 0) {
+    //           //   this.items[index].tenxaphuong = res_xa.data[0].tenxaphuong;
+    //           //   // console.log(this.items[index].tenxaphuong);
+    //           // }
+
+    //           this.items[index].tothon = dataHgd.diaChi;
+    //         } catch (error) {
+    //           console.log(error.message);
+    //         }
+    //       } else {
+    //         // 2. Trường hợp không có trong dữ liệu thẻ thì đi tìm trong DL HGD
+    //         const resHGD = await this.$axios.get(
+    //           `/api/nguoihuong/tim-kiem-thong-tin-hgd?soBhxh=${masobhxh}&SO_DDCN_CCCD_BCA=''`
+    //         );
+    //         // console.log(resHGD);
+    //         if (resHGD.data.canhan !== null) {
+    //           // console.log(resHGD);
+    //           this.isLoading = false;
+    //           const data = resHGD.data.canhan;
+    //           try {
+    //             this.items[index].hoten = data.hoTen;
+    //             this.items[index].ngaysinh = data.ngaySinh;
+    //             // console.log(typeof data.gioiTinh);
+    //             this.items[index].cccd = data.SO_DDCN_CCCD_BCA;
+    //             this.items[index].gioitinh = data.gioiTinh;
+    //             this.items[index].dienthoai = data.soDienThoai;
+
+    //             const today = new Date();
+    //             const thang = String(today.getMonth() + 1).padStart(2, "0"); // tháng bắt đầu từ 0
+    //             const nam = today.getFullYear();
+
+    //             const thangNam = `${thang}/${nam}`;
+    //             this.items[index].tuthang = thangNam;
+
+    //             const filename = data.tenFile;
+    //             const parts = filename.split("_");
+
+    //             const maTinh = parts[4].replace("TTT", "");
+    //             const maHuyen = parts[5].replace("HH", "");
+    //             const maXa = parts[6];
+
+    //             // console.log("Mã tỉnh:", maTinh); // "42"
+    //             // console.log("Mã huyện:", maHuyen); // "449"
+    //             // console.log("Mã xã:", maXa); // "18754"
+
+    //             // CODE MOI. DIA PHUONG 2 CAP. LAY MA TINH TU DL THE
+    //             // đi tìm tên tỉnh
+    //             const res_tinh = await this.$axios.get(
+    //               `/api/danhmucs/hanhchinh2cap-find-tentinh?province_code=${maTinh}`
+    //             );
+    //             // console.log(res_tinh.data);
+    //             if (res_tinh.data.length > 0) {
+    //               this.items[index].tentinh = `Tỉnh ${res_tinh.data[0].name}`;
+    //               // console.log(this.items[index].tentinh);
+    //             }
+
+    //             //  TÌM VÀ GÁN LẠI TÊN XÃ MỚI 2 CẤP
+    //             const res_xa = await this.$axios.get(
+    //               `/api/danhmucs/hanhchinh2cap-find-tenxa?old_ward_code=${maXa}`
+    //             );
+    //             // console.log(res_xa.data)
+    //             if (res_xa.data.length > 0) {
+    //               // this.items[index].tenxaphuong = res_xa.data[0].ward_name;
+    //               // this.items[index].maxaphuong = res_xa.data[0].ward_code
+    //               // console.log(this.items[index].tenxaphuong);
+    //               // console.log(this.items[index].maxaphuong);
+    //               // 15 tháng 7 2025. HIỆN TẠI VNPT CHƯA CẬP NHẬT DANH MỤC CHÍNH QUYỀN 2 CẤP.
+    //               // TẠM THỜI ĐƯA VỀ 3 CẤP NHƯ CŨ.
+    //               this.items[index].tenxaphuong = res_xa.data[0].old_ward_name;
+    //               this.items[index].maxaphuong = res_xa.data[0].old_ward_code;
+    //             }
+
+    //             // GÁN THÔNG TIN HUYỆN CŨ. data.maXaLh là mã xã cũ
+    //             // tìm thông tin quận huyện cũ theo mã xã cũ
+    //             // select * from dm_xaphuong where matinh=42 and maxaphuong=18070
+    //             const res_huyencu = await this.$axios.get(
+    //               `/api/danhmucs/thongtinquanhuyencu?maxaphuong=${maXa}`
+    //             );
+    //             // console.log(res_huyencu.data)
+    //             this.items[index].maquanhuyen = res_huyencu.data.maquanhuyen;
+    //             this.items[index].tenquanhuyen = res_huyencu.data.tenquanhuyen;
+
+    //             // this.items[index].matinh = maTinh;
+    //             // // đi tìm tên tỉnh
+    //             // const res_tinh = await this.$axios.get(
+    //             //   `/api/nguoihuong/find-tentinh?matinh=${maTinh}`
+    //             // );
+    //             // if (res_tinh.data.length > 0) {
+    //             //   this.items[index].tentinh = res_tinh.data[0].tentinh;
+    //             //   // console.log(this.items[index].tentinh);
+    //             // }
+    //             // this.items[index].maquanhuyen = maHuyen;
+    //             // // đi tìm tên quận huyện
+    //             // const res_huyen = await this.$axios.get(
+    //             //   `/api/nguoihuong/find-tenhuyen?matinh=${maTinh}&maquanhuyen=${maHuyen}`
+    //             // );
+    //             // if (res_huyen.data.length > 0) {
+    //             //   this.items[index].tenquanhuyen =
+    //             //     res_huyen.data[0].tenquanhuyen;
+    //             //   // console.log(this.items[index].tenquanhuyen);
+    //             // }
+    //             // this.items[index].maxaphuong = maXa;
+    //             // // đi tìm tên xã
+    //             // const res_xa = await this.$axios.get(
+    //             //   `/api/nguoihuong/find-tenxa?matinh=${maTinh}&maquanhuyen=${maHuyen}&maxaphuong=${maXa}`
+    //             // );
+    //             // // console.log(res_xa);
+
+    //             // if (res_xa.data.length > 0) {
+    //             //   this.items[index].tenxaphuong = res_xa.data[0].tenxaphuong;
+    //             //   // console.log(this.items[index].tenxaphuong);
+    //             // }
+
+    //             this.items[index].tothon = data.diaChi;
+    //             this.items[index].benhvientinh = maTinh;
+    //           } catch (error) {
+    //             console.log(error.message);
+    //           }
+    //           Swal.fire({
+    //             text: "Không có thông tin cấp thẻ hiện tại của BHXH, đây chỉ là thông tin thẻ hiện đang có trong Hộ gia đình (Hoặc có thể không có). Đề nghị kiểm tra kỹ hồ sơ rồi mới kê khai nhé!",
+    //             // text: "Đã gửi thông tin hồ sơ lên cổng BHXH VN!",
+    //             icon: "success",
+    //           });
+    //         } else {
+    //           Swal.fire({
+    //             text: "Người này hiện không có trong dữ liệu của phần mềm chúng tôi. Bạn hãy tự nhập mới toàn bộ. Từ tháng sẽ là tháng hiện tại kể từ tháng mua thẻ.",
+    //             icon: "success",
+    //           });
+
+    //           const today = new Date();
+    //           const thang = String(today.getMonth() + 1).padStart(2, "0"); // tháng bắt đầu từ 0
+    //           const nam = today.getFullYear();
+
+    //           const thangNam = `${thang}/${nam}`;
+    //           this.items[index].tuthang = thangNam;
+    //         }
+    //       }
+    //       this.isLoading = false;
+    //     } catch (error) {
+    //       console.log(error);
+    //       this.isLoading = false;
+    //     }
+    //   }
+    // },
 
     addHosokekhai() {
       (this.selectedOptionHtnt = "- Chọn hình thức nạp tiền -"),
@@ -2721,11 +2823,11 @@ export default {
         (p) => p.maphuongan === "ON"
       ) || { maphuongan: "", tenphuongan: "" };
 
-                    // load xã theo tỉnh 
-                    const response = await this.$axios.get(
-            `/api/danhmucs/hanhchinh2cap-xa-with-ma-tinh?province_code=${this.matinh}`
-          );
-        const dataXa = response.data
+      // load xã theo tỉnh
+      const response = await this.$axios.get(
+        `/api/danhmucs/hanhchinh2cap-xa-with-ma-tinh?province_code=${this.matinh}`
+      );
+      const dataXa = response.data;
 
       try {
         // Lọc bỏ D1LNCT và D1LNVS khỏi mảng phuongthucdong khi thêm hàng mới
@@ -2812,6 +2914,9 @@ export default {
           NVS: false,
           NCT: false,
           checkDong1lanchocacnamvesauVaConthieu: false,
+
+          maxaphuong_new: "",
+          tenxaphuong_new: "",
         });
 
         // console.log(this.items);
@@ -3113,7 +3218,13 @@ export default {
     //   return Math.round(tienCanNap);
     // },
 
-    tinhTienPhaiDong(madoituong, muctiendong, maphuongthucdong, tuthang) {
+    tinhTienPhaiDong(
+      madoituong,
+      muctiendong,
+      maphuongthucdong,
+      tuthang,
+      index
+    ) {
       // === BƯỚC 1: TÍNH TỔNG SỐ THÁNG TỪ tuthang đến denthang ===
       const denthang = this.tinhDenThang(tuthang, maphuongthucdong);
       const [startMonth, startYear] = tuthang.split("/").map(Number);
@@ -3152,8 +3263,8 @@ export default {
 
       const thangHotro = tongThang - thangTu2026;
 
-      console.log('Tháng trước 1/7:', thangTruoc01072025)
-      console.log('Tháng sau 1/7:', thangSau01072025)
+      console.log("Tháng trước 1/7:", thangTruoc01072025);
+      console.log("Tháng sau 1/7:", thangSau01072025);
 
       // === BƯỚC 2: TÍNH TỶ LỆ VÀ TIỀN HỖ TRỢ ===
       const tyleDong = this.tyledongbhyt / 100;
@@ -3177,22 +3288,21 @@ export default {
       );
       const tyleHotroTWMucCu = doituongCu ? doituongCu.tylehotro : 0;
 
-
       // NGÂN SÁCH NHÀ NƯỚC HỖ TRỢ
       console.log(
         "Ngân sách nhà nước hỗ trợ cho",
-        madoituong, 
+        madoituong,
         "theo mức mới là :",
         tyleHotroTW
       );
       console.log(
         "Ngân sách nhà nước hỗ trợ cho",
-        madoituong, 
+        madoituong,
         "theo mức cũ là :",
         tyleHotroTWMucCu
       );
 
-      const tienDiaPhuongHoTro = 0
+      const tienDiaPhuongHoTro = 0;
 
       // ĐẾN ĐOẠN NÀY SẼ RẼ NHÁNH. NẾU NHƯ CÓ THÁNG TRƯỚC MỐC 1/7/2025 THÌ
       // TOÀN BỘ NGÂN SÁCH TRUNG ƯƠNG SẼ ĂN THEO MỨC CŨ
@@ -3201,10 +3311,12 @@ export default {
       let tienCanNap = 0; // tổng tiền cần phải nạp
 
       if (thangTruoc01072025 > 0) {
-        console.log('TỔNG MỨC HỖ TRỢ CHỈ CÓ NSNN MỨC CŨ CHO TOÀN BỘ QUÁ TRÌNH ĐÓNG')
+        console.log(
+          "TỔNG MỨC HỖ TRỢ CHỈ CÓ NSNN MỨC CŨ CHO TOÀN BỘ QUÁ TRÌNH ĐÓNG"
+        );
         // Tiền trung ương hỗ trợ (danh mục hỗ trợ cũ)
         const tienTrungUongHoTro = castSubTwhotro * (tyleHotroTWMucCu / 100);
-        const tongTienHoTro = tienTrungUongHoTro + tienDiaPhuongHoTro
+        const tongTienHoTro = tienTrungUongHoTro + tienDiaPhuongHoTro;
 
         this.items[index].tylensnnht = tyleHotroTWMucCu;
         this.items[index].tiennsnnht = tienTrungUongHoTro;
@@ -3232,16 +3344,18 @@ export default {
 
         const tienCoHoTro = (castMucdong - hotro_truoc2026) * thangHotro;
         const tienKoHoTro = (castMucdong - hotro_sau2026) * thangTu2026;
-        console.log("Tiền trước 31/12/2205", tienCoHoTro); 
-        console.log("Tiền từ 01/01/2026", tienKoHoTro); 
+        console.log("Tiền trước 31/12/2205", tienCoHoTro);
+        console.log("Tiền từ 01/01/2026", tienKoHoTro);
 
         tienCanNap = tienCoHoTro + tienKoHoTro;
-        console.log("Tiền cần nạp:", Math.round(tienCanNap));     
-      }else{
-        console.log('TỔNG MỨC HỖ TRỢ CHỈ CÓ NSNN MỨC MỚI CHO TOÀN BỘ QUÁ TRÌNH ĐÓNG')
+        console.log("Tiền cần nạp:", Math.round(tienCanNap));
+      } else {
+        console.log(
+          "TỔNG MỨC HỖ TRỢ CHỈ CÓ NSNN MỨC MỚI CHO TOÀN BỘ QUÁ TRÌNH ĐÓNG"
+        );
         // Tiền trung ương hỗ trợ (danh mục hỗ trợ cũ)
         const tienTrungUongHoTro = castSubTwhotro * (tyleHotroTW / 100);
-        const tongTienHoTro = tienTrungUongHoTro + tienDiaPhuongHoTro
+        const tongTienHoTro = tienTrungUongHoTro + tienDiaPhuongHoTro;
 
         this.items[index].tylensnnht = tyleHotroTW;
         this.items[index].tiennsnnht = tienTrungUongHoTro;
@@ -3269,8 +3383,8 @@ export default {
 
         const tienCoHoTro = (castMucdong - hotro_truoc2026) * thangHotro;
         const tienKoHoTro = (castMucdong - hotro_sau2026) * thangTu2026;
-        console.log("Tiền trước 31/12/2205", tienCoHoTro); 
-        console.log("Tiền từ 01/01/2026", tienKoHoTro); 
+        console.log("Tiền trước 31/12/2205", tienCoHoTro);
+        console.log("Tiền từ 01/01/2026", tienKoHoTro);
 
         tienCanNap = tienCoHoTro + tienKoHoTro;
         console.log("Tiền cần nạp:", Math.round(tienCanNap));
@@ -3287,10 +3401,10 @@ export default {
       const regex = /^(0[1-9]|1[0-2])\/\d{4}$/;
       if (!regex.test(tuthang)) {
         Swal.fire({
-          icon: 'error',
-          title: 'Định dạng không hợp lệ',
-          text: '❌ Tháng không đúng định dạng. Vui lòng nhập MM/YYYY (ví dụ: 07/2025, 09/2030 ... )',
-          confirmButtonText: 'Đã hiểu',
+          icon: "error",
+          title: "Định dạng không hợp lệ",
+          text: "❌ Tháng không đúng định dạng. Vui lòng nhập MM/YYYY (ví dụ: 07/2025, 09/2030 ... )",
+          confirmButtonText: "Đã hiểu",
         });
         return;
       }
@@ -3303,7 +3417,8 @@ export default {
         madoituong,
         muctiendong,
         maphuongthucdong,
-        tuthang
+        tuthang,
+        index
       );
     },
 
@@ -3326,7 +3441,7 @@ export default {
         muctiendong,
         maphuongthucdong,
         tuthang,
-        dadongdenthang
+        index
       );
     },
 
@@ -3359,7 +3474,8 @@ export default {
         madoituong,
         muctiendong,
         maphuongthucdong,
-        tuthang
+        tuthang,
+        index
       );
 
       if (maphuongthucdong == "D1LNCT") {
@@ -3449,25 +3565,25 @@ export default {
       const matinh = e.target.value;
       // console.log(matinh)
       const tentinh = e.target.options[e.target.selectedIndex].text;
-      
+
       // lấy dữ liệu quận huyện từ mã tỉnh đã được chọn
       try {
-        this.isLoading = true
+        this.isLoading = true;
         const response = await this.$axios.get(
           `/api/danhmucs/hanhchinh2cap-xa-with-ma-tinh?province_code=${matinh}`
         );
         // console.log(response.data);
-        
+
         // bind dữ liệu vào dữ liệu select của items để cho từng item sử dụng
-        if(response.data.length > 0){
+        if (response.data.length > 0) {
           this.checkXaphuongOpen = true;
           this.items[index].info_xaphuong = response.data;
           this.items[index].matinh = matinh;
           this.items[index].tentinh = tentinh;
         }
-        this.isLoading=false
+        this.isLoading = false;
       } catch (error) {
-        this.isLoading=false
+        this.isLoading = false;
         console.error("Error fetching data:", error);
       }
     },
@@ -3477,7 +3593,7 @@ export default {
 
       // Tìm object bệnh viện trong danh sách
       const selected = item.info_xaphuong.find(
-        b => b.ward_code === ward_code
+        (b) => b.ward_code === ward_code
       );
 
       // Gán mã và tên bệnh viện
@@ -4550,7 +4666,8 @@ export default {
         }
       );
 
-      const diachi = data.tenxaphuong + "; " + data.tentinh;
+      const diachi = data.tenxaphuong_new + "; " + data.tentinh;
+      // const diachi = data.tenxaphuong + "; " + data.tentinh;
       // data.tothon + "; " +
 
       doc.text(`Địa chỉ: `, toadoXInfo, toadoYInfo + 8, {
@@ -4596,7 +4713,6 @@ export default {
       let tienHoa = this.capitalizeFirstLetter(tienbangchuText);
       tienHoa += " đồng./.";
 
-
       doc.text(`(Viết bằng chữ: ${tienHoa}) `, toadoXInfo, toadoYInfo + 32, {
         fontWeight: "bold",
       });
@@ -4640,14 +4756,9 @@ export default {
           fontWeight: "bold",
         }
       );
-      doc.text(
-        `Ngày ký: ${ngayBienLai}`,
-        toadoXInfo + 124,
-        toadoYInfo + 58,
-        {
-          fontWeight: "bold",
-        }
-      );
+      doc.text(`Ngày ký: ${ngayBienLai}`, toadoXInfo + 124, toadoYInfo + 58, {
+        fontWeight: "bold",
+      });
 
       doc.addFont(
         "OpenSans-ExtraBold-normal.ttf",
@@ -4720,16 +4831,16 @@ export default {
 
 @import "@/assets/customCss/footerTable.css";
 
-  /* Mặc định cho thiết bị di động */
-  .modal-card-predata {
-    max-height: 80vh; /* Chiều cao tối đa là 80% màn hình */
-    overflow-y: auto; /* Cho phép cuộn nếu nội dung quá dài */
-  }
+/* Mặc định cho thiết bị di động */
+.modal-card-predata {
+  max-height: 80vh; /* Chiều cao tối đa là 80% màn hình */
+  overflow-y: auto; /* Cho phép cuộn nếu nội dung quá dài */
+}
 
-  /* Cho thiết bị máy tính */
-  @media (min-width: 1024px) {
-    .modal-card-predata {
-      max-height: 90vh; /* Tăng chiều cao tối đa cho máy tính */
-    }
+/* Cho thiết bị máy tính */
+@media (min-width: 1024px) {
+  .modal-card-predata {
+    max-height: 90vh; /* Tăng chiều cao tối đa cho máy tính */
   }
+}
 </style>
