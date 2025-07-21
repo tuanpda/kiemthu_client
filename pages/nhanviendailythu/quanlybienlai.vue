@@ -637,12 +637,15 @@ export default {
         let pdfUrl = "";
         if (hs && hs.urlNameInvoice) {
           const trangthai = hs.active;
+          console.log(trangthai);
+          
           if (trangthai !== 0) {
             pdfUrl = `${company.clientURL}/bienlaidientu/${hs.urlNameInvoice}.pdf`;
           } else {
             pdfUrl = `${company.clientURL}/bienlaidientu/bienlaidahuy/${hs.urlNameInvoice}.pdf`;
           }
-
+          console.log(pdfUrl);
+          
           window.open(pdfUrl, "_blank");
         } else {
           console.warn("Thiếu thông tin số biên lai hoặc họ tên!");

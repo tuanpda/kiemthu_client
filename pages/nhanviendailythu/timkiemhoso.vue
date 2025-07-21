@@ -1188,7 +1188,7 @@ export default {
                 _id: res.data.data._id,
                 hoten: res.data.data.hoten,
                 masobhxh: res.data.data.masobhxh,
-                ghichu: res.data.data.ghichu,
+                lydohuy: lyDo,
                 status: "✅ Thành công",
                 message: res.data.message,
               });
@@ -1213,7 +1213,7 @@ export default {
                 _id: res.data.data._id,
                 hoten: res.data.data.hoten,
                 masobhxh: res.data.data.masobhxh,
-                ghichu: res.data.data.ghichu,
+                lydohuy: lydohuy,
                 status: "❌ Thất bại",
                 error: res.data.message,
               });
