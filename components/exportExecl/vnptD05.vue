@@ -537,9 +537,9 @@ export default {
         // row.getCell(12).value = this.tylediaphuonghotroIs;
         // row.getCell(13).value = tienNSDP * item.maphuongthucdong;
         row.getCell(10).value = item.tylensnnht;
-        row.getCell(11).value = item.tiennsnnht
+        row.getCell(11).value = parseFloat(item.tiennsnnht) * parseFloat(item.maphuongthucdong)
         row.getCell(12).value = item.tylensdp;
-        row.getCell(13).value = item.tiennsdp;
+        row.getCell(13).value = parseFloat(item.tiennsdp) * parseFloat(item.maphuongthucdong)
 
         row.getCell(16).value = Number(item.sotien);
         row.getCell(17).value = Number(item.sotien) + tienNSDP * item.maphuongthucdong + tienNSNNHT;
