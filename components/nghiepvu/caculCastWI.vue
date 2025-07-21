@@ -3723,6 +3723,8 @@ export default {
               tothon: item.tothon,
               tenquanhuyen: item.tenquanhuyen,
               tenxaphuong: item.tenxaphuong,
+                            maxaphuong_new: item.maxaphuong_new,
+              tenxaphuong_new: item.tenxaphuong_new,
               tentinh: item.tentinh,
               currentYear: currentYear,
               urlNameInvoice: urlNameInvoice,

@@ -4189,6 +4189,8 @@ export default {
               tenquanhuyen: item.tenquanhuyen,
               tenxaphuong: item.tenxaphuong,
               tentinh: item.tentinh,
+                            maxaphuong_new: item.maxaphuong_new,
+              tenxaphuong_new: item.tenxaphuong_new,
               currentYear: currentYear,
               urlNameInvoice: urlNameInvoice,
               maphuongan: item.maphuongan,
