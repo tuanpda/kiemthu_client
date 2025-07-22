@@ -3511,6 +3511,8 @@ export default {
 
       console.log('xã change: ', item.maxaphuong, item.tenxaphuong);
       
+      this.items[index].maxaphuong_new = item.maxaphuong
+      this.items[index].tenxaphuong_new = item.tenxaphuong
 
       console.log(this.items[index].maxaphuong_new)
       console.log(this.items[index].tenxaphuong_new)
