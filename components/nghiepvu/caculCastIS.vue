@@ -1566,7 +1566,7 @@ export default {
         { maphuongthuc: "12", tenphuongthuc: "12 tháng" },
         {
           maphuongthuc: "D1LNCT",
-          tenphuongthuc: "Đóng 1 lần cho những năm còn thiếu (Nghỉ hưu)",
+          tenphuongthuc: "Đóng 1 lần cho những năm còn thiếu",
         },
         {
           maphuongthuc: "D1LNVS",
@@ -4218,16 +4218,16 @@ export default {
 
       var noidungText = "";
 
-      console.log('ma loai hinh: ', data.maphuongthucdong)
+      // console.log('ma loai hinh: ', data.maphuongthucdong)
 
       if (data.maloaihinh == "AR" || data.maloaihinh == "BI") {
         noidungText = `Tiền đóng BHYT, phương thức đóng ${data.soThang} tháng, từ ngày ${data.tuNgay} đến ngày ${data.denNgay}`;
       } else {
         if (data.maphuongthucdong !== "D1LNVS" && data.maphuongthucdong !== "D1LNCT") {
-          console.log('in không bù')
+          // console.log('in không bù')
           noidungText = `Tiền đóng BHXH Tự nguyện, phương thức đóng ${data.soThang} tháng, từ tháng ${data.tuThang} đến tháng ${data.denThang}`;
         } else {
-          console.log('in ra bù')
+          // console.log('in ra bù')
           noidungText = `BHXH Tự nguyện, ${data.tenphuongthucdong}, ${data.sothang} tháng, từ tháng ${data.tuThang}`;
         }
       }
