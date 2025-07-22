@@ -3509,7 +3509,7 @@ export default {
       item.maxaphuong = ward_code;
       item.tenxaphuong = selected ? selected.ward_name : "";
 
-      console.log('xã change: ', item.maxaphuong, item.tenxaphuong);
+      // console.log('xã change: ', item.maxaphuong, item.tenxaphuong);
       
       this.items[index].maxaphuong_new = item.maxaphuong
       this.items[index].tenxaphuong_new = item.tenxaphuong
@@ -4218,12 +4218,16 @@ export default {
 
       var noidungText = "";
 
+      console.log('ma loai hinh: ', data.maphuongthucdong)
+
       if (data.maloaihinh == "AR" || data.maloaihinh == "BI") {
         noidungText = `Tiền đóng BHYT, phương thức đóng ${data.soThang} tháng, từ ngày ${data.tuNgay} đến ngày ${data.denNgay}`;
       } else {
         if (data.maphuongthucdong !== "D1LNVS" || data.maphuongthucdong !== "D1LNCT") {
+          console.log('in không bù')
           noidungText = `Tiền đóng BHXH Tự nguyện, phương thức đóng ${data.soThang} tháng, từ tháng ${data.tuThang} đến tháng ${data.denThang}`;
         } else {
+          console.log('in ra bù')
           noidungText = `BHXH Tự nguyện, ${data.tenphuongthucdong}, ${data.sothang} tháng, từ tháng ${data.tuThang}`;
         }
       }
