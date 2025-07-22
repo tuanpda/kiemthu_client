@@ -4220,7 +4220,7 @@ export default {
 
       console.log('ma loai hinh: ', data.maphuongthucdong)
 
-      if (data.maloaihinh == "AR" || data.maloaihinh == "BI") {
+      if (data.maloaihinh == "AR" && data.maloaihinh == "BI") {
         noidungText = `Tiền đóng BHYT, phương thức đóng ${data.soThang} tháng, từ ngày ${data.tuNgay} đến ngày ${data.denNgay}`;
       } else {
         if (data.maphuongthucdong !== "D1LNVS" || data.maphuongthucdong !== "D1LNCT") {
