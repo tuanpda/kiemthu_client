@@ -51,10 +51,13 @@
               <td style="text-align: center; color: white">Họ tên</td>
               <td style="text-align: center; color: white">Tên người dùng</td>
               <td style="text-align: center; color: white">CCCD</td>
+              <td style="text-align: center; color: white">Mã đại lý</td>
               <td style="text-align: center; color: white">Email</td>
               <td style="text-align: center; color: white">Điện thoại</td>
-              <td style="text-align: center; color: white">Điểm thu</td>
+              <td style="text-align: center; color: white">Địa chỉ</td>
               <td style="text-align: center; color: white">Tình trạng</td>
+              <td style="text-align: center; color: white">Ngày tạo</td>
+              <td style="text-align: center; color: white">Người tạo</td>
             </tr>
           </thead>
           <tbody>
@@ -75,6 +78,9 @@
               <td style="text-align: center">
                 {{ item.cccd }}
               </td>
+              <td style="text-align: center">
+                {{ item.madaily }}
+              </td>
               <td>
                 {{ item.email }}
               </td>
@@ -91,6 +97,12 @@
                 <span v-else>
                   <i style="color: #00947e" class="fa fa-circle"></i>
                 </span>
+              </td>
+              <td style="text-align: center">
+                {{ item.createdAt | formatDate }}
+              </td>
+              <td style="text-align: center">
+                {{ item.createdBy }}
               </td>
             </tr>
           </tbody>
@@ -204,57 +216,42 @@
                   </div>
                 </div>
 
-                <!-- select tỉnh thành phố -->
-                <div class="field">
-                  <label class="label is-small">Tỉnh / Thành phố</label>
-                  <input
-                    autoComplete="on"
-                    list="provinceSuggestions"
-                    class="custom-input"
-                    @blur="provinceChange"
-                    ref="provinceInput"
-                  />
-                  <datalist id="provinceSuggestions">
-                    <option v-for="(item, index) in dm_Tinhs" :key="index">
-                      {{ item.matinh }} - {{ item.tentinh }}
-                    </option>
-                  </datalist>
-                </div>
+                <div style="margin-top: 5px; margin-bottom: 5px;">
+                  <label class="label is-small">Thông tin về Điểm thu</label>
+                  <div class="select is-fullwidth is-small" style="margin-bottom: 5px;">
+                    <select
+                      v-model="form.matinh"
+                      @change="provinceChange($event)"
+                    >
+                      <option
+                        v-for="(dt, index) in cq2cap_Tinh"
+                        :key="index"
+                        :value="dt.province_code"
+                      >
+                        {{ dt.name }}
+                      </option>
+                    </select>
+                  </div>
 
-                <!-- select quận huyện -->
-                <div class="field">
-                  <label class="label is-small">Quận huyện / Thị xã</label>
-                  <input
-                    :disabled="isDisabled_Huyenxa"
-                    autoComplete="on"
-                    list="districtSuggestions"
-                    class="custom-input"
-                    @blur="quanhuyenChange"
-                    ref="districtInput"
+                  <v-select
+                    v-model="form.maxa"
+                    :options="info_xaphuong"
+                    label="ward_name"
+                    :reduce="(b) => b.ward_code"
+                    :get-option-label="
+                      (val) => {
+                        if (typeof val === 'string') {
+                          const found = info_xaphuong.find(
+                            (x) => x.ward_code === val
+                          );
+                          return found ? found.ward_name : val;
+                        }
+                        return val.ward_name;
+                      }
+                    "
+                    @input="xaphuongChange($event)"
+                    :append-to-body="true"
                   />
-                  <datalist id="districtSuggestions">
-                    <option v-for="(item, index) in quanhuyenData" :key="index">
-                      {{ item.maquanhuyen }} - {{ item.tenquanhuyen }}
-                    </option>
-                  </datalist>
-                </div>
-
-                <!-- select xã phường -->
-                <div class="field">
-                  <label class="label is-small">Xã phường</label>
-                  <input
-                    :disabled="isDisabled_Xaphuong"
-                    autoComplete="on"
-                    list="xaphuongSuggestions"
-                    class="custom-input"
-                    @blur="xaphuongChange"
-                    ref="xphuongInput"
-                  />
-                  <datalist id="xaphuongSuggestions">
-                    <option v-for="(item, index) in xaphuongData" :key="index">
-                      {{ item.maxaphuong }} - {{ item.tenxaphuong }}
-                    </option>
-                  </datalist>
                 </div>
 
                 <label class="label is-small">Điểm thu - Công ty DV thu?</label>
@@ -263,7 +260,6 @@
                     <div class="select is-small">
                       <select
                         @change="nhanvienCtyChange($event)"
-                        :disabled="isDisabled_Daily"
                       >
                         <option selected>-- Chọn phân cấp --</option>
                         <option value="true">Nhân viên công ty</option>
@@ -273,17 +269,15 @@
                   </div>
                 </div>
 
-                <label class="label is-small">Gửi lên cổng BHXH VN?</label>
+                <label class="label is-small">Quyền hạn</label>
                 <div class="field">
                   <div class="control">
                     <div class="select is-small">
-                      <select
-                        @change="sentChange($event)"
-                        :disabled="isDisabled_Daily"
-                      >
+                      <select @change="sentChange($event)">
                         <option selected>-- Chọn quyền --</option>
-                        <option value="true">Cho phép</option>
-                        <option value="false">Không cho phép</option>
+                        <option value="1">Quản trị viên (1)</option>
+                        <option value="2">Tổng hợp hồ sơ (2)</option>
+                        <option value="4">Nhân viên thu (4)</option>
                       </select>
                     </div>
                   </div>
@@ -653,6 +647,7 @@ import company from "@/config.company";
 import { mapState, mapActions } from "vuex";
 import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
+
 export default {
   name: "AddUserAdminPage",
   layout: "admin",
@@ -688,18 +683,18 @@ export default {
         tendaily: "",
         nvcongty: 0,
         diachi: "",
-        masobhxh: "",
+        masobhxh: "4288888888",
         cccd: "",
         sodienthoai: "",
-        email: "",
+        email: "ansinhhonglam@gmail.com",
         username: "",
         name: "",
         password: "",
-        role: 4, // nomal user
-        avatar: `${company.clientURL}/avatar/default-image.jpg`,
+        role: "", // nomal user
+        avatar: `${company.clientURL}/avatar/default-image.png`,
         active: 1,
         // createdBy: this.$auth.user.username,
-        createdAt: null,
+        createdAt: "",
         updatedBy: "",
         updatedAt: "",
       },
@@ -718,6 +713,9 @@ export default {
       res_Data_Exist: [],
 
       dm_Tinhs: [],
+
+      cq2cap_Tinh: [],
+      info_xaphuong: [],
     };
   },
 
@@ -728,6 +726,7 @@ export default {
 
     const user = this.user;
     this.form.createdBy = user.username;
+    this.loadTinh();
   },
 
   watch: {
@@ -833,6 +832,14 @@ export default {
       }
     },
 
+    async loadTinh() {
+      const res = await this.$axios.get(`/api/danhmucs/hanhchinh2cap-tinh`);
+      // console.log(res.data);
+      if (res.data.length > 0) {
+        this.cq2cap_Tinh = res.data;
+      }
+    },
+
     async fetchDataTCDVT() {
       try {
         const res = await this.$axios.get(`/api/tochucdvt/all-org`);
@@ -878,27 +885,48 @@ export default {
       // console.log(this.form.tentochuc.text);
     },
 
-    // tỉnh
-    async provinceChange(event) {
-      const selectedOption = event.target.value;
-      let position = selectedOption.split("-");
-      // console.log(position);
-      if (selectedOption) {
-        this.form.matinh = position[0].trim();
-        this.form.tentinh = position[1].trim();
-        try {
-          const response = await this.$axios.get(
-            `/api/danhmucs/dmquanhuyenwithmatinh?matinh=${this.form.matinh}`
-          );
-          // console.log(response.data);
-          this.quanhuyenData = response.data;
-          if (this.quanhuyenData.length > 0) {
-            this.checkHuyenxaOpen = true;
-          }
-        } catch (error) {
-          console.error("Error fetching data:", error);
-        }
+    async provinceChange(e) {
+      // lấy thông tin thay đổi từ người dùng select
+      const matinh = e.target.value;
+      const tentinh = e.target.options[e.target.selectedIndex].text;
+      // console.log(matinh);
+      // console.log(tentinh);
+
+      // lấy dữ liệu quận huyện từ mã tỉnh đã được chọn
+      try {
+        this.isLoading = true;
+        const response = await this.$axios.get(
+          `/api/danhmucs/hanhchinh2cap-xa-with-ma-tinh?province_code=${matinh}`
+        );
+        // console.log(response.data);
+
+        // bind dữ liệu vào dữ liệu select của items để cho từng item sử dụng
+        // if (response.data.length > 0) {
+        //   this.checkXaphuongOpen = true;
+        this.info_xaphuong = response.data;
+        this.form.matinh = matinh;
+        this.form.tentinh = tentinh;
+        // }
+        this.isLoading = false;
+      } catch (error) {
+        this.isLoading = false;
+        console.error("Error fetching data:", error);
       }
+    },
+
+    // xã phường
+    async xaphuongChange(ward_code) {
+      const selected = this.info_xaphuong.find(
+        (b) => b.ward_code === ward_code
+      );
+
+      // console.log(selected);
+
+      this.form.maxa = selected.ward_code;
+      this.form.tenxa = selected.ward_name;
+      this.form.madaily = selected.ward_code;
+      this.form.tendaily = selected.ward_name;
+      // console.log(this.form);
     },
 
     async quanhuyenChange(event) {
@@ -923,29 +951,6 @@ export default {
       }
     },
 
-    async xaphuongChange(event) {
-      const selectedOption = event.target.value;
-      let position = selectedOption.split("-");
-      // console.log(position);
-      if (selectedOption) {
-        this.form.maxa = position[0].trim();
-        this.form.tenxa = position[1].trim();
-      }
-      this.checkDailyOpen = true;
-
-      // try {
-      //   const response = await this.$axios.get(
-      //     `/api/danhmucs/dmxaphuongwithmahuyen?maquanhuyen=${this.form.mahuyen}`
-      //   );
-      //   this.xaphuongData = response.data;
-      //   if (this.xaphuongData.length > 0) {
-      //     this.checkXaphuongOpen = true;
-      //   }
-      // } catch (error) {
-      //   console.error("Error fetching data:", error);
-      // }
-    },
-
     nhanvienCtyChange(event) {
       const selectedOption = event.target.value;
       // console.log(selectedOption); // nhận giá trị true hoặc false - true là nhân viên công ty - giá trị mặc định là false
@@ -959,7 +964,7 @@ export default {
       // console.log(selectedOption);
 
       if (selectedOption) {
-        this.form.res_sent = selectedOption;
+        this.form.role = selectedOption;
       }
     },
 
@@ -1011,19 +1016,6 @@ export default {
     },
 
     async checkFormData() {
-      // Kiểm tra tồn tại email
-      const res_email_exists = await this.$axios.get(
-        `/api/users/findemail?email=${this.form.email}`
-      );
-      // console.log(res_email_exists.data.length);
-      if (res_email_exists.data.length > 0) {
-        Swal.fire({
-          title: "Tài khoản đã tồn tại",
-          text: "Email này đã tồn tại trong hệ thống",
-        });
-        this.$refs.emailInput.focus();
-        return false; // Trả về false để ngăn chặn quá trình lưu dữ liệu
-      }
       // Kiểm tra xem các trường thông tin bắt buộc đã được điền đầy đủ chưa
       if (!this.form.name) {
         // Hiển thị thông báo lỗi
@@ -1034,33 +1026,7 @@ export default {
         this.$refs.nameInput.focus();
         return false; // Trả về false để ngăn chặn quá trình lưu dữ liệu
       }
-      if (!this.form.matinh || !this.form.tentinh) {
-        // Hiển thị thông báo lỗi
-        this.$toasted.show("Chọn thông tin Tỉnh / Thành phố", {
-          duration: 3000,
-          theme: "bubble",
-        });
-        this.$refs.provinceInput.focus();
-        return false; // Trả về false để ngăn chặn quá trình lưu dữ liệu
-      }
-      if (!this.form.mahuyen || !this.form.tenhuyen) {
-        // Hiển thị thông báo lỗi
-        this.$toasted.show("Chọn thông tin Quận huyện", {
-          duration: 3000,
-          theme: "bubble",
-        });
-        this.$refs.districtInput.focus();
-        return false; // Trả về false để ngăn chặn quá trình lưu dữ liệu
-      }
-      if (!this.form.maxa || !this.form.tenxa) {
-        // Hiển thị thông báo lỗi
-        this.$toasted.show("Chọn thông tin Xã phường", {
-          duration: 3000,
-          theme: "bubble",
-        });
-        this.$refs.xphuongInput.focus();
-        return false; // Trả về false để ngăn chặn quá trình lưu dữ liệu
-      }
+
       if (!this.form.diachi) {
         // Hiển thị thông báo lỗi
         this.$toasted.show("Chọn thông tin Địa chỉ", {
@@ -1332,7 +1298,7 @@ export default {
         // random 8 ký tự
         const randomString = this.generateRandomString(10);
         // activeString
-        let passtranfomer = 'Honglam@';
+        let passtranfomer = "Honglam@";
         // console.log(passtranfomer);
         // ngày tạo user
         const current = new Date();
@@ -1348,8 +1314,8 @@ export default {
         data.append("tenhuyen", this.form.tenhuyen);
         data.append("maxa", this.form.maxa);
         data.append("tenxa", this.form.tenxa);
-        data.append("madaily", this.form.maxa);
-        data.append("tendaily", this.form.tenxa);
+        data.append("madaily", "");
+        data.append("tendaily", this.form.tendaily);
         data.append("nvcongty", this.form.nvcongty);
         data.append("diachi", this.form.diachi);
         data.append("cccd", this.form.cccd);
@@ -1370,7 +1336,7 @@ export default {
         data.append("createdBy", this.form.createdBy);
         data.append("updatedAt", this.form.updatedAt);
         data.append("updatedBy", this.form.updatedBy);
-        data.append("res_sent", this.form.res_sent);
+        data.append("res_sent", 1); // sửa mặc định là cho phép
         data.append("macqbhxh", "");
         data.append("tencqbhxh", "");
 
