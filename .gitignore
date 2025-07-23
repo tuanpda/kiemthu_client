@@ -7,7 +7,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-static/bienlaidientu/
+static/
 
 # Runtime data
 pids

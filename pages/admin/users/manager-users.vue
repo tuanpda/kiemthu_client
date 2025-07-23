@@ -35,8 +35,8 @@
                   Điểm thu
                 </td>
                 <td style="text-align: center; color: white">Tình trạng</td>
-                <td style="text-align: center; color: white">Ngày tạo</td>
-                <td style="text-align: center; color: white">Người tạo</td>
+                <!-- <td style="text-align: center; color: white">Ngày tạo</td>
+                <td style="text-align: center; color: white">Người tạo</td> -->
                 <td style="text-align: center; color: white">Cập nhật</td>
                 <td style="text-align: center; color: white">Xóa</td>
               </tr>
@@ -86,12 +86,12 @@
                     <i style="color: #00947e" class="fa fa-circle"></i>
                   </span>
                 </td>
-                <td style="text-align: center">
+                <!-- <td style="text-align: center">
                   {{ item.createdAt | formatDate }}
                 </td>
                 <td style="text-align: center">
                   {{ item.createdBy }}
-                </td>
+                </td> -->
                 <td style="text-align: center">
                   <a @click="activeUpdate(item)">
                     <span class="icon is-larger" style="color: green">
