@@ -3070,16 +3070,20 @@ export default {
     async xaphuongChange(ward_code, index) {
       const item = this.items[index];
 
-      // Tìm object bệnh viện trong danh sách
       const selected = item.info_xaphuong.find(
         (b) => b.ward_code === ward_code
       );
 
-      // Gán mã và tên bệnh viện
       item.maxaphuong = ward_code;
       item.tenxaphuong = selected ? selected.ward_name : "";
 
-      // console.log(this.items)
+      // console.log('xã change: ', item.maxaphuong, item.tenxaphuong);
+      
+      this.items[index].maxaphuong_new = item.maxaphuong
+      this.items[index].tenxaphuong_new = item.tenxaphuong
+
+      console.log(this.items[index].maxaphuong_new)
+      console.log(this.items[index].tenxaphuong_new)
     },
 
     // tỉnh bệnh viện

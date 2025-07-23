@@ -2477,7 +2477,13 @@ export default {
       item.maxaphuong = ward_code;
       item.tenxaphuong = selected ? selected.ward_name : "";
 
-      // console.log(this.items)
+      // console.log('xã change: ', item.maxaphuong, item.tenxaphuong);
+      
+      this.items[index].maxaphuong_new = item.maxaphuong
+      this.items[index].tenxaphuong_new = item.tenxaphuong
+
+      console.log(this.items[index].maxaphuong_new)
+      console.log(this.items[index].tenxaphuong_new)
     },
 
     // tỉnh bệnh viện
