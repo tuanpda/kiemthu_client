@@ -216,9 +216,12 @@
                   </div>
                 </div>
 
-                <div style="margin-top: 5px; margin-bottom: 5px;">
+                <div style="margin-top: 5px; margin-bottom: 10px">
                   <label class="label is-small">Thông tin về Điểm thu</label>
-                  <div class="select is-fullwidth is-small" style="margin-bottom: 5px;">
+                  <div
+                    class="select is-fullwidth is-small"
+                    style="margin-bottom: 5px"
+                  >
                     <select
                       v-model="form.matinh"
                       @change="provinceChange($event)"
@@ -234,23 +237,12 @@
                   </div>
 
                   <v-select
-                    v-model="form.maxa"
                     :options="info_xaphuong"
                     label="ward_name"
-                    :reduce="(b) => b.ward_code"
-                    :get-option-label="
-                      (val) => {
-                        if (typeof val === 'string') {
-                          const found = info_xaphuong.find(
-                            (x) => x.ward_code === val
-                          );
-                          return found ? found.ward_name : val;
-                        }
-                        return val.ward_name;
-                      }
-                    "
-                    @input="xaphuongChange($event)"
-                    :append-to-body="true"
+                    v-model="form.maxa"
+                    :reduce="(x) => x.ward_code"
+                    @input="xaphuongChange"
+                    :no-options="'Không tìm thấy kết quả nào'"
                   />
                 </div>
 
@@ -258,9 +250,7 @@
                 <div class="field">
                   <div class="control">
                     <div class="select is-small">
-                      <select
-                        @change="nhanvienCtyChange($event)"
-                      >
+                      <select @change="nhanvienCtyChange($event)">
                         <option selected>-- Chọn phân cấp --</option>
                         <option value="true">Nhân viên công ty</option>
                         <option value="false">Điểm thu</option>
@@ -1449,6 +1439,7 @@ export default {
 </script>
 
 <style scoped lang="css">
+@import "@/assets/customCss/common.css";
 .table_wrapper {
   display: block;
   overflow: scroll;
@@ -1628,4 +1619,9 @@ datalist option:not(:checked) {
   max-height: 100px;
   padding: 5px;
 }
+
+
+
+
+
 </style>

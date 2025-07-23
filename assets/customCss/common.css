@@ -206,24 +206,25 @@ select:focus {
   background-color: #fffaeb;
 }
 
-.v-select {
-  min-width: 300px;
-  font-size: 12px;
+::v-deep(.v-select .vs__selected) {
+  font-size: 0.7rem;
+  font-family: 'Roboto', sans-serif;
 }
 
-.v-select .vs__dropdown-menu {
-  max-height: 100px;
-  overflow-y: auto;
-  z-index: 9999;
-  font-size: 11px;
+::v-deep(.v-select .vs__dropdown-menu) {
+  font-size: 0.7rem;
+  font-family: 'Roboto', sans-serif;
 }
 
-.v-select .vs__dropdown-option {
-  padding: 6px 12px;
+::v-deep(.v-select .vs__dropdown-option) {
+  padding: 6px 10px;
+  font-size: 0.7rem;
 }
 
-.v-select .vs__dropdown-option--highlight {
-  background: #3273dc; /* màu xanh đẹp */
-  color: white;
+::v-deep(.v-select) {
+  min-width: 280px;   /* hoặc giá trị bạn thấy hợp */
+  max-width: 100%;    /* để không bị tràn nếu trong container hẹp */
 }
+
+
 

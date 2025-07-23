@@ -393,7 +393,6 @@
                   :options="item.info_benhvien"
                   label="tenbenhvien"
                   :reduce="(b) => b.mabenhvien"
-                  placeholder="Chọn trạm y tế"
                   @input="hopChangeReset($event, index)"
                   :append-to-body="true"
                 />
@@ -973,7 +972,7 @@ export default {
       );
       this.dmquanhuyen = res_quanhuyen.data;
       const res_benhvien = await this.$axios.get(
-        `/api/danhmucs/dmbenhvienwithtinh-${company.benhvien}?matinh=${this.matinh}`
+        `/api/danhmucs/dmbenhvienwithtinh`
       );
       this.dmbenhvien = res_benhvien.data;
     } else {
@@ -3674,24 +3673,6 @@ export default {
 
 @import "@/assets/customCss/footerTable.css";
 
-/* Tùy chỉnh chiều cao của danh sách */
-.vs__dropdown-menu {
-  max-height: 50px; /* Giảm chiều cao của danh sách */
-  overflow-y: auto; /* Thêm thanh cuộn */
-}
-
-/* Tùy chỉnh chiều cao item trong danh sách */
-.vs__dropdown-option {
-  line-height: 1.2; /* Giảm chiều cao của mỗi mục */
-  padding: 4px 8px; /* Tùy chỉnh padding */
-}
-
-/* Tùy chỉnh hướng xổ lên */
-.vs__dropdown-container {
-  position: absolute !important;
-  transform: translateY(-100%) !important;
-}
-
 /* Mặc định cho thiết bị di động */
 .modal-card-predata {
   max-height: 80vh; /* Chiều cao tối đa là 80% màn hình */
@@ -3704,4 +3685,6 @@ export default {
     max-height: 90vh; /* Tăng chiều cao tối đa cho máy tính */
   }
 }
+
+
 </style>

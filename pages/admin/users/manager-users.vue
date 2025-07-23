@@ -227,23 +227,12 @@
                     </div>
 
                     <v-select
-                      v-model="user_data.tenxa"
                       :options="info_xaphuong"
                       label="ward_name"
-                      :reduce="(b) => b.ward_code"
-                      :get-option-label="
-                        (val) => {
-                          if (typeof val === 'string') {
-                            const found = info_xaphuong.find(
-                              (x) => x.ward_code === val
-                            );
-                            return found ? found.ward_name : val;
-                          }
-                          return val.ward_name;
-                        }
-                      "
-                      @input="xaphuongChange($event)"
-                      :append-to-body="true"
+                      v-model="user_data.tenxa"
+                      :reduce="(x) => x.ward_code"
+                      @input="xaphuongChange"
+                      :no-options="'Không tìm thấy kết quả nào'"
                     />
                   </div>
 
@@ -906,6 +895,7 @@ export default {
 </script>
 
 <style scoped lang="css">
+@import "@/assets/customCss/common.css";
 .table_wrapper {
   display: block;
   overflow: scroll;

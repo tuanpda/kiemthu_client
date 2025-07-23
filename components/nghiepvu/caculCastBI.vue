@@ -343,7 +343,6 @@
                   :options="item.info_benhvien"
                   label="tenbenhvien"
                   :reduce="(b) => b.mabenhvien"
-                  placeholder="Chọn trạm y tế"
                   @input="hopChangeReset($event, index)"
                   :append-to-body="true"
                 />
@@ -1526,7 +1525,7 @@ export default {
       );
       this.dmquanhuyen = res_quanhuyen.data;
       const res_benhvien = await this.$axios.get(
-        `/api/danhmucs/dmbenhvienwithtinh-${company.benhvien}?matinh=${this.matinh}`
+        `/api/danhmucs/dmbenhvienwithtinh`
       );
       this.dmbenhvien = res_benhvien.data;
     } else {
