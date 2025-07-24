@@ -61,7 +61,7 @@ export default {
 
       const ctx = this.$refs.chartTongTien.getContext("2d");
 
-      const labels = this.chartData.map((item) => item.cccd);
+      const labels = this.chartData.map((item) => item.tennguoitao);
       const data = this.chartData.map((item) => item.tongtien);
 
       const backgroundColors = [
