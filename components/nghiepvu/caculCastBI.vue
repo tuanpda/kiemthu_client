@@ -1598,7 +1598,6 @@ export default {
           (this.items[index].gioitinh = data.gioitinh === "1" ? "Nam" : "Nữ"),
             (this.items[index].dienthoai = data.sodienthoai);
           this.items[index].hanthecu = data.hanthecu;
-          this.items[index].tungay = data.tungay;
 
           // Thông tin hành chính
           this.items[index].matinh = data.tinh.matinh;
