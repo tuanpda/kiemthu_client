@@ -1072,7 +1072,6 @@ export default {
           (this.items[index].gioitinh = data.gioitinh === "1" ? "Nam" : "Nữ"),
             (this.items[index].dienthoai = data.sodienthoai);
           this.items[index].hanthecu = data.hanthecu;
-          this.items[index].tungay = data.tungay;
 
           // Thông tin hành chính
           this.items[index].matinh = data.tinh.matinh;
@@ -1102,9 +1101,9 @@ export default {
 
           // console.log(data.hanthecu);
           // 31/12/2025
-          
+
           const hanTheCuStr = data.hanthecu; // từ data.hanthecu hoặc hardcode để test
-          const parts = hanTheCuStr.split('/');
+          const parts = hanTheCuStr.split("/");
           const hanTheCu = new Date(parts[2], parts[1] - 1, parts[0]); // yyyy, MM-1, dd
 
           const today = new Date();
@@ -1117,9 +1116,49 @@ export default {
             Swal.fire({
               icon: "info",
               title: "Thẻ vẫn còn hạn",
-              text: `Thẻ hiện còn hiệu lực thêm ${diffDays} ngày. Cân nhắc trước khi gia hạn!`
+              text: `Thẻ hiện còn hiệu lực thêm ${diffDays} ngày. Cân nhắc trước khi gia hạn!`,
             });
           }
+
+          // Hàm parse định dạng dd/mm/yyyy thành Date
+          const parseDate = (str) => {
+            const [day, month, year] = str.split("/").map(Number);
+            return new Date(year, month - 1, day);
+          };
+
+          // Hàm format Date về dd/mm/yyyy
+          const formatDate = (date) => {
+            const d = String(date.getDate()).padStart(2, "0");
+            const m = String(date.getMonth() + 1).padStart(2, "0");
+            const y = date.getFullYear();
+            return `${d}/${m}/${y}`;
+          };
+
+          const denNgay = parseDate(data.hanthecu);
+          const bienLai = today;
+
+          let tuNgay;
+
+          if (denNgay >= today) {
+            // Chưa hết hạn → ngày kế tiếp
+            const nextDay = new Date(denNgay);
+            nextDay.setDate(nextDay.getDate() + 1);
+            tuNgay = nextDay;
+          } else {
+            const daysDiff = (today - denNgay) / (1000 * 60 * 60 * 24);
+            if (daysDiff > 90) {
+              // Hết hạn > 3 tháng → sau hôm nay 30 ngày
+              const next30 = new Date();
+              next30.setDate(next30.getDate() + 30);
+              tuNgay = next30;
+            } else {
+              // Hết hạn < 3 tháng → dùng ngày biên lai
+              tuNgay = bienLai;
+            }
+          }
+
+          this.items[index].tungay = formatDate(tuNgay);
+          console.log("🎯 Hạn thẻ từ (tungay):", this.items[index].tungay);
         }
       } catch (err) {
         console.error(err);
@@ -2188,7 +2227,7 @@ export default {
 
                 // console.log(rsIdtity.data);
                 this.dulieuTravedeinbienlai = rsIdtity.data;
-                
+
                 this.isActive_xacnhan = true;
               }
             } catch (error) {
@@ -2477,12 +2516,12 @@ export default {
       item.tenxaphuong = selected ? selected.ward_name : "";
 
       // console.log('xã change: ', item.maxaphuong, item.tenxaphuong);
-      
-      this.items[index].maxaphuong_new = item.maxaphuong
-      this.items[index].tenxaphuong_new = item.tenxaphuong
 
-      console.log(this.items[index].maxaphuong_new)
-      console.log(this.items[index].tenxaphuong_new)
+      this.items[index].maxaphuong_new = item.maxaphuong;
+      this.items[index].tenxaphuong_new = item.tenxaphuong;
+
+      console.log(this.items[index].maxaphuong_new);
+      console.log(this.items[index].tenxaphuong_new);
     },
 
     // tỉnh bệnh viện
@@ -3685,6 +3724,4 @@ export default {
     max-height: 90vh; /* Tăng chiều cao tối đa cho máy tính */
   }
 }
-
-
 </style>
